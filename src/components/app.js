@@ -9,6 +9,7 @@ import ChangeCategory from "./changeCategory";
 import Recipe from "./recipe";
 import AddRecipe from "./addRecipe";
 import ChangeRecipe from "./changeRecipe";
+import Menu from "./menu";
 
 
 
@@ -22,6 +23,7 @@ class App extends Component {
                 <Route path="/change-recipe" component={ChangeRecipe} />
                 <Route path="/add-recipe" component={AddRecipe} />
                 <Route path="/recipe" component={Recipe} />
+                <Route path="/menu" component={Menu} />
             </Switch>
         );
     }

@@ -9,7 +9,6 @@ let recipesArray = JSON.parse(localStorage.getItem('recipes')) || [];
 let count = recipes.length;
 
 let initialState = {
-    count: count,
     array: recipesArray
 };
 
@@ -18,13 +17,11 @@ export default function recipes(state = initialState, action) {
         case RECIPE_ADDED:
             return {
                 ...state,
-                count: state.count + action.step,
                 array: action.data
             };
         case RECIPE_DELETED:
         return {
             ...state,
-            count: state.count - action.step,
             array: action.data
         };
         default:
@@ -36,7 +33,6 @@ export default function recipes(state = initialState, action) {
 export function addRecipe(data) {
     return {
         type: RECIPE_ADDED,
-        step: 1,
         data: data
     };
 }
@@ -44,7 +40,6 @@ export function addRecipe(data) {
 export function deleteRecipe(data) {
     return {
         type: RECIPE_DELETED,
-        step: 1,
         data: data
     };
 }

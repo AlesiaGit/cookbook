@@ -15,11 +15,11 @@ const mapStateToProps = state => {
 };
 
 class HeaderDropDown extends Component {
-    /*constructor(props) {
+    constructor(props) {
         super(props);
 
         console.log(this.props);
-    }*/
+    }
 
 
 
@@ -40,7 +40,7 @@ class HeaderDropDown extends Component {
                     style={{color: this.props.selectedCategory.data.color}}>{this.props.selectedCategory.data.name}</div>
                 </div>
                 )
-        }else if (this.props.selectedCategory.data.id === 'default' && this.props.categories.array.length > 0) {
+        } else {
             return (
                 <div className="add-recipe__category-selected">
                     <div 

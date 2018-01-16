@@ -93,9 +93,9 @@ class Drawer extends Component {
             <div style={{display: this.props.drawerDisplay}}>
                 <div className="wrapper-transparent-cover" onClick={() => this.props.toggleDrawer()} ></div>
                 <div className="category__side-overlay-menu drawer" >
-                    <div 
+                    <Link 
                         className="drawer__category-wrapper menu" 
-                        onClick={() => console.log('menu')} 
+                        to="/menu" 
                         style={{backgroundColor: (settings.menuCategory.id === this.props.selectedCategory.id) ? "#f0f0f0" : "#ffffff"}}>
                         <div className="drawer__category-info">
                             <div className="drawer__category-icon" style={this.props.drawCategoryIcon(settings.menuCategory)}></div>
@@ -103,7 +103,7 @@ class Drawer extends Component {
                                 <div className="drawer__category-title">{settings.menuCategory.name}</div>
                             </div>
                         </div>
-                    </div>
+                    </Link>
                     <div 
                         className="drawer__category-wrapper all-recipes" 
                         onClick={() => this.props.handleCategoryChange()} 
