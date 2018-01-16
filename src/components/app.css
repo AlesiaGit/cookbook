@@ -1,0 +1,24 @@
+@import url("../style/category.css");
+@import url("../style/change-category.css");
+@import url("../style/add-category.css");
+@import url("../style/add-recipe.css");
+@import url("../style/change-recipe.css");
+@import url("../style/recipe.css");
+
+.back-btn {
+	height: calc(2.5vh + 2.5vw);
+    width: calc(2.5vh + 2.5vw);
+    background-image: url('../img/icons/back-btn.png');
+	background-size: 100%;
+	background-repeat: no-repeat;
+	background-position: 50%;
+}
+
+.confirm-btn {
+	height: calc(2.5vh + 2.5vw);
+    width: calc(2.5vh + 2.5vw);
+    background-image: url('../img/icons/confirm-btn.png');
+	background-size: 100%;
+	background-repeat: no-repeat;
+	background-position: 50%;
+}
