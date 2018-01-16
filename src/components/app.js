@@ -24,6 +24,7 @@ class App extends Component {
                 <Route path="/add-recipe" component={AddRecipe} />
                 <Route path="/recipe" component={Recipe} />
                 <Route path="/menu" component={Menu} />
+                <Route component={Category} />
             </Switch>
         );
     }

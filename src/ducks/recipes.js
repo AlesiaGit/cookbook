@@ -6,7 +6,6 @@ export const RECIPE_DELETED = "cookbook/recipes/RECIPE_DELETED";
 
 // Reducer
 let recipesArray = JSON.parse(localStorage.getItem('recipes')) || [];
-let count = recipes.length;
 
 let initialState = {
     array: recipesArray
