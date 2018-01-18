@@ -33,16 +33,32 @@ class AddCategory extends Component {
             categoryColor: settings.colors[0],
             categoryName: '',
             categoryIcon: settings.icons[0],
-            icons: settings.icons
+            icons: settings.icons,
         };
+    }
 
-        //console.log(this.props);
+    componentWillMount = () => {
+        this.setState({
+            ratio: window.innerWidth/window.innerHeight
+        });
+
+        this.setStatusBarColor(settings.colors[0]);
+    }
+
+    setStatusBarColor = (color) => {
+        document.querySelector('meta[name=theme-color]').setAttribute('content', color);
+    }
+
+    preventWindowFromResize = () => {
+        document.querySelector('meta[name=viewport]').setAttribute('content', 'width=device-width, height=' + window.innerWidth / this.state.ratio + ', user-scalable=no, initial-scale=1.0, maximum-scale=1.0');
     }
 
     changeCategoryColor = (color) => {
         this.setState({
             categoryColor: color
-        })
+        });
+
+        this.setStatusBarColor(color);
     }
 
     changeCategoryName = (ev) => {
@@ -102,7 +118,12 @@ class AddCategory extends Component {
         <div className="body add-category__body">
             <div className="add-category__body-section">
                 <div className="add-category__body-section-title">Название папки</div>
-                <input className="add-category__body-section-input" type="text" onChange={this.changeCategoryName} placeholder="например, 'Десерты'" />
+                <input 
+                    className="add-category__body-section-input" 
+                    type="text" 
+                    onChange={this.changeCategoryName}
+                    onFocus={this.preventWindowFromResize}
+                    placeholder="например, 'Десерты'" />
             </div>
             <div className="add-category__body-section">
                 <div className="add-category__body-section-title">Цвет категории</div>

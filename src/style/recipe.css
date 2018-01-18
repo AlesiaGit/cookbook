@@ -217,10 +217,11 @@ body {
 }
 
 .recipe__block-title {
+    font-family: "Roboto", sans-serif;
 	padding: calc(1.5vh + 1.5vw);
 	color: #e7989e;
 	text-transform: uppercase;
-	font-weight: 600;
+	font-weight: 700;
 }
 
 .recipe__block-list {

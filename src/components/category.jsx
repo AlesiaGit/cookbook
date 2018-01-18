@@ -90,13 +90,23 @@ class Category extends Component {
     }
 
     componentWillMount = () => {
-
+        this.setState({
+            ratio: window.innerWidth/window.innerHeight
+        });
+        this.setStatusBarColor(this.props.selectedCategory.data.color);
     }
 
     componentWillUnmount = () => {
         //store.dispatch(changeCategory(this.state.selectedCategory));
     }
 
+    setStatusBarColor = (color) => {
+        document.querySelector('meta[name=theme-color]').setAttribute('content', color);
+    }
+
+    preventWindowFromResize = () => {
+        document.querySelector('meta[name=viewport]').setAttribute('content', 'width=device-width, height=' + window.innerWidth / this.state.ratio + ', user-scalable=no, initial-scale=1.0, maximum-scale=1.0');
+    }
 
     setCategoryToDefault = () => {
         store.dispatch(resetCategory());
@@ -104,6 +114,7 @@ class Category extends Component {
         	selectedCategory: settings.defaultCategory,
             selectedCategoryRecipes: this.props.recipes.array
         });
+        this.setStatusBarColor(settings.defaultCategory.color);
     }
 
     selectCategory = (category) => {
@@ -112,6 +123,7 @@ class Category extends Component {
         	selectedCategory: category,
             selectedCategoryRecipes: this.props.recipes.array.filter(elem => elem.category === category.id)
         });
+        this.setStatusBarColor(category.color);
     }
 
     toggleDrawer = () => {
@@ -196,9 +208,9 @@ class Category extends Component {
         let array;
 
         if (this.state.selectedCategory.id === 'default') {
-            array = this.state.recipes.filter(elem => elem.title.toLowerCase().indexOf(search) >= 0);
+            array = this.state.recipes.filter(elem => elem.title.toLowerCase().indexOf(search.toLowerCase()) >= 0);
         } else {
-            array = this.state.recipes.filter(elem => elem.title.toLowerCase().indexOf(search) >= 0 && elem.category === this.state.selectedCategory.id);
+            array = this.state.recipes.filter(elem => elem.title.toLowerCase().indexOf(search.toLowerCase()) >= 0 && elem.category === this.state.selectedCategory.id);
         }
 
         this.setState({
@@ -230,6 +242,7 @@ class Category extends Component {
                 </div>
                 <div className="category__header-right-menu">
                     <input 
+                        onFocus={this.preventWindowFromResize} 
                         onBlur={this.resetInput}
                         className="category__header-search-field" 
                         onChange={this.handleInput} 

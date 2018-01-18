@@ -57,7 +57,10 @@ class Items extends Component {
 	            onTouchStart={() => this.props.handleRecipeLongPress(this.props.rowIndex * 2 + index)}
 	            onTouchEnd={() => this.props.handleRecipeRelease}>
 	            <div className="category__list-image" style={this.props.addStyle(this.props.recipes[this.props.rowIndex * 2 + index], this.props.rowIndex * 2 + index)}></div>
-	            <div className="category__list-title">{this.props.addTitle(this.props.recipes[this.props.rowIndex * 2 + index])}</div>
+	            <div className="category__list-info-wrapper">
+                    <div className="category__list-icon" style={this.props.addIcon(this.props.recipes[this.props.rowIndex * 2 + index])}></div>
+                    <div className="category__list-title">{this.props.addTitle(this.props.recipes[this.props.rowIndex * 2 + index])}</div>
+                </div>
 	            <Overlay 
 	                alertBoxDisplayArray={this.props.alertBoxDisplayArray}
 	                resetAlertBoxes={this.props.resetAlertBoxes}
@@ -118,6 +121,16 @@ class RecipesList extends Component {
         if (item) return item.title;
     }
 
+    addIcon = item => {
+        if (item) {
+            let category = this.props.categories.filter(elem => elem.id === item.category)[0];
+            return ({
+                backgroundColor: category.color,
+                WebkitMaskImage: "url(" + category.icon + ")", 
+            });
+        }
+    }
+
     getId = item => {
         if (item) return item.id;
     }
@@ -154,6 +167,7 @@ class RecipesList extends Component {
 	                		resetAlertBoxes={this.resetAlertBoxes}
 	                		addTitle={this.addTitle}
 	                		addStyle={this.addStyle}
+                            addIcon={this.addIcon}
                             getId={this.getId}
 	                		handleRecipeLongPress={this.handleRecipeLongPress}
 	                		handleRecipeRelease={this.handleRecipeRelease}

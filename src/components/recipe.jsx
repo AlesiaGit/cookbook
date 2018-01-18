@@ -64,18 +64,10 @@ class Recipe extends Component {
                 redirect: true
             });
         } else {
-        	/*if (this.props.location.state.recipe) {
-        		this.setState({
-	                selectedCategory: this.props.categories.array.filter(elem => elem.id === this.props.location.state.recipe.category)[0]
-	            });
-        	} else {*/
-        		this.setState({
-	                selectedCategory: this.props.categories.array.filter(elem => elem.id === this.state.recipe.category)[0]
-	                //selectedCategory: this.props.selectedCategory
-	            });
-        	//}
-            
-        }          
+    		this.setState({
+                selectedCategory: this.props.categories.array.filter(elem => elem.id === this.state.recipe.category)[0]
+            }, () => document.querySelector('meta[name=theme-color]').setAttribute('content', this.state.selectedCategory.color));
+        }  
     }
 
     componentDidMount = () => {

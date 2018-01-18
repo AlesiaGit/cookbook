@@ -227,10 +227,17 @@ body {
 .drawer__drag-icon {
     height: calc(4vh + 4vw);
     width: calc(4vh + 4vw);
-    background-image: url('../img/icons/drag-drop-icon.png');
     background-size: 100%;
     background-repeat: no-repeat;
     background-position: 50%;
+}
+
+.grey {
+    background-image: url('../img/icons/drag-drop-icon.png');
+}
+
+.white {
+    background-image: url('../img/icons/drag-drop-icon-white.png');
 }
 
 .drawer__left {
@@ -239,13 +246,6 @@ body {
     justify-content: space-between;
     align-items: center;
 }
-
-/*.temp {
-    background-color:  #e7989e;
-    -webkit-mask-image: url('../img/svg/chicken.svg');
-    -webkit-mask-repeat: no-repeat;
-    -webkit-mask-position: 50%;
-}*/
 
 .drawer__category-recipes-count {
     font-size: calc(1.5vh + 1.5vw);
@@ -352,6 +352,7 @@ body {
 	-webkit-appearance: none;
 	border: 0;
     -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
+    -webkit-user-select: none;
     text-decoration: none;
     color: #404040;
     position: relative;
@@ -365,17 +366,36 @@ body {
 	visibility: hidden;
 }
 
-.category__list-title {
-	font-size: calc(1.5vh + 1.5vw);
+.category__list-info-wrapper {
     height: 30%;
-    background-color: #ffffff;
+    display: -ms-flexbox;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
     border: calc(0.05vh + 0.05vw) solid #c4c4c4;
-    line-height:  calc(4vh + 4vw);
-    text-indent: 3vw;
+    -webkit-box-sizing: border-box;
     box-sizing: border-box;
+    background-color: #ffffff;
+}
+
+.category__list-icon {
+    height: calc(3vh + 3vw);
+    width: calc(3vh + 3vw);
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: 50%;
+    -webkit-mask-size: contain;
+    margin: 0 2vw;
+}
+
+.category__list-title {
+    font-size: calc(1.5vh + 1.5vw);
+    height: 100%;
+    line-height: calc(5vh + 4vw);
     overflow: hidden;
+    -o-text-overflow: ellipsis;
     text-overflow: ellipsis;
-    flex-grow: 0;
+    -ms-flex-positive: 0;
+    flex-grow: 0
 }
 
 .category__list-image {

@@ -36,7 +36,7 @@ class CategoryList extends Component {
             <div>
             {this.props.categories.map((item, index) => (
                 <div className="drawer__category-wrapper" key={index} style={{backgroundColor: (item === this.props.selectedCategory) ? "#f0f0f0" : "#ffffff"}}>
-                    <div className="drawer__drag-icon"></div>
+                    <div className={(item === this.props.selectedCategory) ? "drawer__drag-icon white" : "drawer__drag-icon grey"}></div>
                     <div className="drawer__left" >
                         <div className="drawer__category-info" onClick={() => this.props.handleCategoryChange(item)}>
                             <div className="drawer__category-icon" style={this.props.drawCategoryIcon(item)}></div>

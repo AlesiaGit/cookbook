@@ -37,10 +37,28 @@ class ChangeCategory extends Component {
         };
     }
 
+    componentWillMount = () => {
+        this.setState({
+            ratio: window.innerWidth/window.innerHeight
+        });
+
+        this.setStatusBarColor(this.props.selectedCategory.data.color);
+    }
+
+    setStatusBarColor = (color) => {
+        document.querySelector('meta[name=theme-color]').setAttribute('content', color);
+    }
+
+    preventWindowFromResize = () => {
+        document.querySelector('meta[name=viewport]').setAttribute('content', 'width=device-width, height=' + window.innerWidth / this.state.ratio + ', user-scalable=no, initial-scale=1.0, maximum-scale=1.0');
+    }
+
     changeCategoryColor = (color) => {
         this.setState({
             categoryColor: color
-        })
+        });
+
+        this.setStatusBarColor(color);
     }
 
     changeCategoryName = (ev) => {
@@ -88,7 +106,12 @@ class ChangeCategory extends Component {
         <div className="body change-category__body">
             <div className="change-category__body-section">
                 <div className="change-category__body-section-title">Название папки</div>
-                <input className="change-category__body-section-input" type="text" onChange={this.changeCategoryName} value={this.state.categoryName} />
+                <input 
+                    className="change-category__body-section-input" 
+                    type="text" 
+                    onChange={this.changeCategoryName}
+                    onFocus={this.preventWindowFromResize} 
+                    value={this.state.categoryName} />
             </div>
             <div className="change-category__body-section">
                 <div className="change-category__body-section-title">Цвет категории</div>

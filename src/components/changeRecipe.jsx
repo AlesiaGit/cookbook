@@ -27,7 +27,7 @@ const mapStateToProps = state => {
 };
 
 
-let ratio = window.innerWidth/window.innerHeight;
+//let ratio = window.innerWidth/window.innerHeight;
 
 const IngredientsList = (props) => {
     return (
@@ -63,6 +63,10 @@ class ChangeRecipe extends Component {
     }
 
     componentWillMount = () => {
+        this.setState({
+            ratio: window.innerWidth/window.innerHeight
+        });
+
         if (this.state.recipe === undefined) {
             this.setState({
                 redirect: true
@@ -78,16 +82,20 @@ class ChangeRecipe extends Component {
                 recipePortions: this.state.recipe.portions,
                 recipeDescription: this.state.recipe.steps,
                 recipeIngredients: this.state.recipe.ingredients
-            });
-        }          
+            }, () => this.setStatusBarColor(this.state.selectedCategory.color));
+        }
     }
 
     componentWillUnmount = () => {
-        store.dispatch(changeCategory(this.state.selectedCategory));
+        //store.dispatch(changeCategory(this.state.selectedCategory));
+    }
+
+    setStatusBarColor = (color) => {
+        document.querySelector('meta[name=theme-color]').setAttribute('content', color);
     }
 
     preventWindowFromResize = () => {
-        document.querySelector('meta[name=viewport]').setAttribute('content', 'width=device-width, height=' + window.innerWidth / ratio + ', user-scalable=no, initial-scale=1.0, maximum-scale=1.0');
+        document.querySelector('meta[name=viewport]').setAttribute('content', 'width=device-width, height=' + window.innerWidth / this.state.ratio + ', user-scalable=no, initial-scale=1.0, maximum-scale=1.0');
     }
 
     handleInputChange = (event) => {
@@ -214,7 +222,9 @@ class ChangeRecipe extends Component {
         store.dispatch(changeCategory(category));
         this.setState({
             selectedCategory: category
-        })
+        });
+
+        this.setStatusBarColor(category.color);
     }
 
     render() {

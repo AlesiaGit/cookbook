@@ -115,7 +115,7 @@ body {
     align-items: center;
     background-repeat: no-repeat; 
     background-position: 50%;
-    background-size: 100%;
+    background-size: cover;
 }
 
 .add-recipe__add-picture-icon {

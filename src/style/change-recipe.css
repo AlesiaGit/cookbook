@@ -118,7 +118,7 @@ body {
     align-items: center;
     background-repeat: no-repeat; 
     background-position: 50%;
-    background-size: 100%;
+    background-size: cover;
 }
 
 .change-recipe__add-picture-icon {
@@ -184,8 +184,9 @@ body {
 }
 
 .change-recipe__body-section-title {
+	font-family: "Roboto", sans-serif;
 	font-size: calc(1.5vh + 1.5vw);
-	font-weight: bold;
+	font-weight: 700;
 	text-transform: uppercase;
 }
 
