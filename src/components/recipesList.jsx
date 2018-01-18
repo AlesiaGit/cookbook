@@ -43,28 +43,31 @@ const Overlay = props => {
     )
 }
 
-const Items = (props) => {
+class Items extends Component {
+    render() {
     return (
         <div className="category__list-row">
-         {props.rowData.map((elem, index) => (
+         {this.props.rowData.map((elem, index) => (
 	        <Link
 	        	style={{visibility: elem === undefined ? 'hidden' : 'visible'}} 
-	        	key={props.rowIndex * 2 + index}
+	        	key={this.props.rowIndex * 2 + index}
 	            className="category__list-item" 
-	            to={{pathname: "/recipe", state: {recipe: props.recipes[props.rowIndex * 2 + index]}}}
-	            onTouchStart={() => props.handleRecipeLongPress(props.rowIndex * 2 + index)}
-	            onTouchEnd={() => props.handleRecipeRelease}>
-	            <div className="category__list-image" style={props.addStyle(props.recipes[props.rowIndex * 2 + index], props.rowIndex * 2 + index)}></div>
-	            <div className="category__list-title">{props.addTitle(props.recipes[props.rowIndex * 2 + index])}</div>
+                to={(elem === undefined) ? '/' : "/recipe/" + this.props.recipes[this.props.rowIndex * 2 + index].id}
+                onClick={() => this.props.selectCategory(this.props.categories.filter(elem => elem.id === this.props.recipes[this.props.rowIndex * 2 + index].category)[0])}
+	            onTouchStart={() => this.props.handleRecipeLongPress(this.props.rowIndex * 2 + index)}
+	            onTouchEnd={() => this.props.handleRecipeRelease}>
+	            <div className="category__list-image" style={this.props.addStyle(this.props.recipes[this.props.rowIndex * 2 + index], this.props.rowIndex * 2 + index)}></div>
+	            <div className="category__list-title">{this.props.addTitle(this.props.recipes[this.props.rowIndex * 2 + index])}</div>
 	            <Overlay 
-	                alertBoxDisplayArray={props.alertBoxDisplayArray}
-	                resetAlertBoxes={props.resetAlertBoxes}
-	                index={props.rowIndex * 2 + index}
+	                alertBoxDisplayArray={this.props.alertBoxDisplayArray}
+	                resetAlertBoxes={this.props.resetAlertBoxes}
+	                index={this.props.rowIndex * 2 + index}
 	            />
 	        </Link>
 	        ))}
         </div>
     )
+        }
 }
 
 class RecipesList extends Component {
@@ -115,6 +118,10 @@ class RecipesList extends Component {
         if (item) return item.title;
     }
 
+    getId = item => {
+        if (item) return item.id;
+    }
+
     hideEmpty = item => {
         if (!item) return ({
             visibility: 'hidden'
@@ -147,8 +154,11 @@ class RecipesList extends Component {
 	                		resetAlertBoxes={this.resetAlertBoxes}
 	                		addTitle={this.addTitle}
 	                		addStyle={this.addStyle}
+                            getId={this.getId}
 	                		handleRecipeLongPress={this.handleRecipeLongPress}
 	                		handleRecipeRelease={this.handleRecipeRelease}
+                            selectCategory={this.props.selectCategory}
+                            categories={this.props.categories}
                             /> 
                     </div>
                  ))}

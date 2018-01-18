@@ -12,6 +12,7 @@ import store from "../store/store";
 import { /*addCategory,*/ deleteCategory } from "../ducks/categories";
 import { changeCategory, resetCategory } from "../ducks/selected-category";
 import { /*addRecipe,*/ deleteRecipe } from "../ducks/recipes";
+import { /*saveTempData,*/ resetTempData } from "../ducks/temp-data";
 
 import settings from "../config";
 
@@ -68,7 +69,7 @@ const HeaderMenu = props => {
 
 
 
-class Category extends Component {
+class Main extends Component {
     constructor(props) {
         super(props);
 
@@ -85,16 +86,14 @@ class Category extends Component {
             defaultCategory: settings.defaultCategory,
             defaultCategoryRecipes: this.props.recipes.array,
         };
-
-        //console.log(this.props);
     }
 
     componentWillMount = () => {
-
+        store.dispatch(resetTempData());
     }
 
     componentWillUnmount = () => {
-        //store.dispatch(changeCategory(this.state.selectedCategory));
+
     }
 
 
@@ -215,16 +214,16 @@ class Category extends Component {
     
 
     render() {
-
-        let categoryColor = this.state.selectedCategory.color;
         let drawerVisibility = this.state.drawer ? "flex" : "none";
         let sideMenuDisplay = this.state.sideMenu ? "flex" : "none";
         let headerMenuDisplay = this.state.headerMenu ? "flex" : "none";
         let startButtonImage = this.state.startButton ? "start-menu-btn" : "return-menu-btn";
+        let color = this.state.selectedCategory.color;
+        let addRecipeLink = this.state.categories.length === 0 ? "/add-category" : "/add-recipe";
 
         return (
            <div className="wrapper" onClick={this.hideHeaderMenu}>
-            <div className="category__header header" style={{backgroundColor: categoryColor}} >
+            <div className="category__header header" style={{backgroundColor: color}} >
                 <div className="category__header-left-menu">
                     <div className={"category__header-menu-btn " + startButtonImage} onClick={this.toggleDrawer}></div>
                 </div>
@@ -242,19 +241,17 @@ class Category extends Component {
                 <div className="category__title">
                     <div className="category__selected">
                         <div className="category__selected-icon" style={this.drawCategoryIcon(this.state.selectedCategory)}></div>
-                        <div className="category__selected-title" style={{color: categoryColor}}>{this.state.selectedCategory.name}</div>
+                        <div className="category__selected-title" style={{color: color}}>{this.state.selectedCategory.name}</div>
                     </div>
                     <div className="category__items-count-wrapper">
-                        <div className="category__items-count" style={{backgroundColor: categoryColor}}>{this.writeRecipesCount(this.state.selectedCategory.id)}</div>
+                        <div className="category__items-count" style={{backgroundColor: color}}>{this.writeRecipesCount(this.state.selectedCategory.id)}</div>
                     </div>
                 </div>
                 <RecipesList 
                     recipes={this.state.selectedCategoryRecipes} 
-                    color={categoryColor}
-                    selectCategory={this.selectCategory}
-                    categories={this.state.categories}
+                    color={color}
                 />
-                <Link className="category__add-recipe-btn" style={{backgroundColor: categoryColor}} to={"/add-recipe/r" + Date.now()}/>
+                <Link className="category__add-recipe-btn" style={{backgroundColor: color}} to={addRecipeLink} />
             </div>
             <HeaderMenu 
             	headerMenuDisplay={headerMenuDisplay}
@@ -287,4 +284,4 @@ class Category extends Component {
     location: PropTypes.string
 };*/
 
-export default connect(mapStateToProps)(Category);
+export default connect(mapStateToProps)(Main);

@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Redirect } from "react-router-dom";
+import { Redirect, Link } from "react-router-dom";
 import { connect } from "react-redux";
 //import PropTypes from "prop-types";
 import Croppie from "croppie";
@@ -7,16 +7,15 @@ import Croppie from "croppie";
 
 import CategoriesDropDown from './categoriesDropDown';
 import BackButton from "./backButton";
-import ConfirmButton from "./confirmButton";
+//import ConfirmButton from "./confirmButton";
 import { asyncLocalStorage } from "../utils/asyncLocalStorage";
 //import settings from "../config";
 
 
 import store from "../store/store";
-import { addRecipe/*, deleteRecipe*/ } from "../ducks/recipes";
+import { addRecipe, deleteRecipe } from "../ducks/recipes";
 //import { addCategory, deleteCategory } from "../ducks/categories";
 import { changeCategory/*, resetCategory*/ } from "../ducks/selected-category";
-import { saveTempData, resetTempData } from "../ducks/temp-data";
 
 
 const mapStateToProps = state => {
@@ -51,39 +50,56 @@ class AddRecipe extends Component {
     constructor(props) {
         super(props);
 
+        let empty = {
+            id: window.location.hash.split("/add-recipe/").pop(),
+            cooktime: {
+                hours: '', 
+                minutes: ''
+            }, 
+            image: '',
+            ingredients: [], 
+            portions: '', 
+            steps: '', 
+            title: '',
+            category: ''
+        }
+
         this.state = {
             cropperDisplay: false,
-            resultImage: this.props.tempData.data.image,
-            recipeName: this.props.tempData.data.title,
-            recipeCookHours: this.props.tempData.data.cooktime.hours,
-            recipeCookMinutes: this.props.tempData.data.cooktime.minutes,
-            recipePortions: this.props.tempData.data.portions,
-            recipeDescription: this.props.tempData.data.steps,
+            recipe: this.props.recipes.array.filter(elem => elem.id === window.location.hash.split("/add-recipe/").pop())[0] || empty,
             ingredientName: '',
             ingredientQuantity: '',
             ingredientUnits: 'мл',
-            recipeIngredients: this.props.tempData.data.ingredients,
             categories: this.props.categories.array,
             recipes: this.props.recipes.array,
-            selectedCategory: this.props.selectedCategory.data,
             croppie: "",
-            redirect: false
+            redirect: false,
+            selectedCategory: this.props.selectedCategory.data.id === 'default' && this.props.categories.array.length > 0 ? this.props.categories.array[0] : this.props.selectedCategory.data
         };
     }
 
     componentWillMount = () => {
-        if (this.state.selectedCategory.id === 'default' && this.state.categories.length === 0) {
+        if (this.props.selectedCategory.data.id === 'default' && this.props.categories.array.length === 0) {
             this.setState({
                 redirect: true
             })
         }
 
-        if (this.state.selectedCategory.id === 'default' && this.state.categories.length > 0) {
-            this.handleCategoryChange(this.state.categories[0]);
-        }
-    }
+        let recipe = this.state.recipe;
+        recipe.category = this.state.selectedCategory;
 
-    
+        this.setState({
+            recipe: recipe,
+            resultImage: this.state.recipe.image,
+            recipeId: this.state.recipe.id,
+            recipeName: this.state.recipe.title,
+            recipeCookHours: this.state.recipe.cooktime.hours,
+            recipeCookMinutes: this.state.recipe.cooktime.minutes,
+            recipePortions: this.state.recipe.portions,
+            recipeDescription: this.state.recipe.steps,
+            recipeIngredients: this.state.recipe.ingredients
+        });
+    }
 
     preventWindowFromResize = () => {
         document.querySelector('meta[name=viewport]').setAttribute('content', 'width=device-width, height=' + window.innerWidth / ratio + ', user-scalable=no, initial-scale=1.0, maximum-scale=1.0');
@@ -100,26 +116,28 @@ class AddRecipe extends Component {
     }
 
     handleFileUpload = (event) => {
-        this.croppie.style.width = this.resultWrapper.offsetWidth * 0.8 + 'px';
-        this.croppie.style.height = this.resultWrapper.offsetWidth * 0.8 + 'px';
+        this.setState({
+            width: this.resultWrapper.offsetWidth * 0.8 + 'px',
+            height: this.resultWrapper.offsetWidth * 0.6 + 'px',
+        }, () => {
 
         this.setState({
+            
             croppie: new Croppie(this.croppie, {
                 viewport: {
                     width: this.resultWrapper.offsetWidth * 0.8,
-                    height: this.resultWrapper.offsetHeight * 0.8
+                    height: this.resultWrapper.offsetWidth * 0.4,
+                    type: 'square'
                 },
                 boundary: {
                     width: this.resultWrapper.offsetWidth * 0.8,
-                    height: this.resultWrapper.offsetWidth * 0.8
+                    height: this.resultWrapper.offsetWidth * 0.6
                     
                 },
                 showZoomer:false
+            }),
+                cropperDisplay: true
             })
-        });
-
-        this.setState({
-            cropperDisplay: true
         });
 
         var file = event.target.files[0];
@@ -178,27 +196,10 @@ class AddRecipe extends Component {
         });
     }
 
-    saveTempData = () => {
-        let tempData = {
-            id: '',
-            cooktime: {
-                hours: this.state.recipeCookHours, 
-                minutes: this.state.recipeCookMinutes}, 
-            image: this.state.resultImage,
-            ingredients: this.state.recipeIngredients, 
-            portions: this.state.recipePortions, 
-            steps:this.state.recipeDescription, 
-            title: this.state.recipeName,
-            category: this.state.selectedCategory.id
-        };
-
-        store.dispatch(saveTempData(tempData));
-    }
-
     saveRecipe = () => {
         let recipes = this.props.recipes.array;
         let newRecipe = {
-            id: 'r' + Date.now(),
+            id: this.state.recipeId,
             cooktime: {
                 hours: this.state.recipeCookHours, 
                 minutes: this.state.recipeCookMinutes
@@ -211,12 +212,19 @@ class AddRecipe extends Component {
             category: this.state.selectedCategory.id
         };
 
-        recipes.push(newRecipe);
+        this.setState({
+            recipe: newRecipe
+        })
 
-        store.dispatch(addRecipe(recipes));
-        store.dispatch(resetTempData());
+        let array = recipes.filter(elem => elem.id !== newRecipe.id);
+        array.push(newRecipe);
+        store.dispatch(addRecipe(array));
+        asyncLocalStorage.setItem('recipes', array);
+    }
 
-        asyncLocalStorage.setItem('recipes', recipes);
+    deleteRecipe = () => {
+        let remainingRecipes = this.props.recipes.filter(elem => elem.id !== this.state.recipeId);
+        store.dispatch(deleteRecipe(remainingRecipes));
     }
 
     handleCategoryChange = (category) => {
@@ -235,11 +243,33 @@ class AddRecipe extends Component {
            <div className="wrapper">
             <div className="add-recipe__header header" style={{backgroundColor: categoryColor}} >
                 <div className="add-recipe__header-left-menu">
-                    <BackButton />
+                    <BackButton onClick={this.deleteRecipe} />
                 </div>
                 <div className="add-recipe__header-title">Добавить рецепт</div>
                 <div className="add-recipe__header-right-menu" onClick={this.saveRecipe}>
-                   <ConfirmButton />
+                    <Link 
+                        className="confirm-btn" 
+                        to= {
+                                {
+                                    pathname: "/recipe", 
+                                    state: {
+                                        recipe: {
+                                            id: this.state.recipeId,
+                                            cooktime: {
+                                                hours: this.state.recipeCookHours, 
+                                                minutes: this.state.recipeCookMinutes
+                                            }, 
+                                            image: (this.state.resultImage === '') ? '' : this.state.resultImage,
+                                            ingredients: this.state.recipeIngredients, 
+                                            portions: this.state.recipePortions, 
+                                            steps:this.state.recipeDescription, 
+                                            title: this.state.recipeName,
+                                            category: this.state.selectedCategory.id
+                                        }
+                                    }
+                                }
+                            }
+                    />
                 </div>
             </div>
             <div className="add-recipe__add-picture-wrapper" ref={resultWrapper => {this.resultWrapper = resultWrapper}} style={{backgroundImage: this.state.resultImage}} >
@@ -248,11 +278,17 @@ class AddRecipe extends Component {
                 </label>
                 <div className="add-recipe__add-picture-text">Добавить фотографию</div>
             </div>
-            <div className="add-recipe__image-cropper-wrapper" ref={croppieWrapper => {this.croppieWrapper = croppieWrapper}} style={{display: cropperDisplay}}>
-                <div className="add-recipe__image-cropper" ref={croppie => {this.croppie = croppie}} ></div>
-                <div className="add-recipe__image-cropper-buttons-wrapper">
-                    <a className="add-recipe__image-cropper-btn image-cropper-cancel-btn" onClick={this.cancelCroppedImage}>Отменить</a>
-                    <a className="add-recipe__image-cropper-btn image-cropper-confirm-btn" onClick={this.saveCroppedImage}>Сохранить</a>
+            <div 
+                className="change-recipe__image-cropper-wrapper" 
+                style={{display: cropperDisplay, width: this.state.width, height: 'calc(' + this.state.height + ' + 8vh)'}}>
+                <div 
+                    className="change-recipe__cropper" 
+                    ref={croppie => {this.croppie = croppie}} 
+                    style={{width: this.state.width, height: this.state.height}}>
+                </div>
+                <div className="change-recipe__image-cropper-buttons-wrapper" style={{backgroundColor: categoryColor, width: this.state.width}} >
+                    <a className="change-recipe__image-cropper-btn image-cropper-cancel-btn" onClick={this.cancelCroppedImage}>Отменить</a>
+                    <a className="change-recipe__image-cropper-btn image-cropper-confirm-btn" onClick={this.saveCroppedImage}>Сохранить</a>
                 </div>
             </div>
             <div className="body add-recipe__body">
@@ -275,6 +311,8 @@ class AddRecipe extends Component {
                         selectedCategory={this.state.selectedCategory}
                         temp={this.state.temp}
                         saveTempData={this.saveTempData}
+                        saveRecipe={this.saveRecipe}
+                        recipe={this.state.recipe}
                     />
                 </div>
                 <div className="add-recipe__body-section">

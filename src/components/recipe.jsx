@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Link } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
 import { connect } from "react-redux";
 //import PropTypes from "prop-types";
 
@@ -15,6 +15,7 @@ const mapStateToProps = state => {
     return {
         recipes: state.recipes,
         categories: state.categories,
+        selectedCategory: state.selectedCategory,
         tempData: state.tempData
     };
 };
@@ -34,9 +35,8 @@ const HeaderMenu = props => {
 	            	Удалить
 	            </Link>
 	            <Link 
-	            	to="/change-recipe" 
+	            	to={"/change-recipe/" + props.recipe.id} 
 	            	className="recipe__header-overlay-menu-item"
-	            	//onClick={() => props.saveTempData()}
 	            	>
 	            	Изменить
 	            </Link>
@@ -53,18 +53,34 @@ class Recipe extends Component {
         	sideMenu: false,
             startButton: true,
             headerMenu: false,
-            recipe: this.props.location.state.recipe,
-            selectedCategory: this.props.categories.array.filter(elem => elem.id === this.props.location.state.recipe.category)[0]
+            redirect: false,
+            recipe: this.props.recipes.array.filter(elem => elem.id === window.location.hash.split("/recipe/").pop())[0],
         };
-   }
+    }
+
+    componentWillMount = () => {
+        if (this.state.recipe === undefined) {
+            this.setState({
+                redirect: true
+            });
+        } else {
+        	/*if (this.props.location.state.recipe) {
+        		this.setState({
+	                selectedCategory: this.props.categories.array.filter(elem => elem.id === this.props.location.state.recipe.category)[0]
+	            });
+        	} else {*/
+        		this.setState({
+	                selectedCategory: this.props.categories.array.filter(elem => elem.id === this.state.recipe.category)[0]
+	                //selectedCategory: this.props.selectedCategory
+	            });
+        	//}
+            
+        }          
+    }
 
     componentDidMount = () => {
     	store.dispatch(saveTempData(this.state.recipe));
     }
-
-    /*componenWillUnmount = () => {
-    	store.dispatch(resetTempData());
-   }*/
 
     addStyle = item => {
         if (item) return ({
@@ -95,12 +111,10 @@ class Recipe extends Component {
 
     	asyncLocalStorage.setItem('recipes', remainingRecipes);
     }
-
-    /*saveTempData = () => {
-    	store.dispatch(saveTempData(this.state.recipe));
-    }*/
    
     render() {
+    	if (this.state.redirect) return (<Redirect to="/" />);
+
     	let headerMenuVisibility = this.state.headerMenu ? "flex" : "none";
 
         return (
@@ -150,7 +164,7 @@ class Recipe extends Component {
 	            	display={headerMenuVisibility}
 	            	toggleHeaderMenu={this.toggleHeaderMenu}
 	            	deleteRecipe={this.deleteRecipe}
-	            	//saveTempData={this.saveTempData}
+	            	recipe={this.state.recipe}
 	            />
 			</div>
         );

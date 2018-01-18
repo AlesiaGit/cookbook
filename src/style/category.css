@@ -156,6 +156,8 @@ body {
     align-items: center;
     justify-content: space-between;
     padding: 1vh 5% 1vh 0;
+    text-decoration: none;
+    color: #404040;
 }
 
 .all-recipes, 

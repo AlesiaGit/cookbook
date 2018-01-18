@@ -33,7 +33,11 @@ class CategoriesDropDown extends Component {
                 selectedCategory: this.props.selectedCategory
             })
         }
-    }   
+    }  
+
+    componentWillUnmount = () => {
+        console.log('before categoriesDropDown unmount', this.props.recipe);
+    } 
 
     handleSelect = (event) => {
         let id = event.currentTarget.id;
@@ -54,7 +58,7 @@ class CategoriesDropDown extends Component {
             dropDownDisplay: true
         });
 
-        this.props.saveTempData();
+        this.props.saveRecipe();
     }
 
     hideCategoriesList = () => {
@@ -107,7 +111,8 @@ class CategoriesDropDown extends Component {
                     ))}
                     <li className="add-recipe__category-selection-item">
                         <Link 
-                            to={{pathname: "/add-category", state: {temp: this.props.temp}}}
+                            to={{pathname: "/add-category", state: {recipe: this.props.recipe}}}
+                            //onClick={() => this.props.saveRecipe()}
                             className="add-recipe__add-category-link"
                         />
                     </li>

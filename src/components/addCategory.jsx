@@ -13,13 +13,15 @@ import { asyncLocalStorage } from "../utils/asyncLocalStorage";
 import store from "../store/store";
 import { addCategory/*, deleteCategory*/ } from "../ducks/categories";
 import { changeCategory/*, resetCategory*/ } from "../ducks/selected-category";
+import { addRecipe/*, deleteRecipe*/ } from "../ducks/recipes";
 
 import settings from "../config";
 
 const mapStateToProps = state => {
     return {
         categories: state.categories,
-        selectedCategory: state.selectedCategory
+        selectedCategory: state.selectedCategory,
+        recipes: state.recipes
     };
 };
 
@@ -33,6 +35,8 @@ class AddCategory extends Component {
             categoryIcon: settings.icons[0],
             icons: settings.icons
         };
+
+        //console.log(this.props);
     }
 
     changeCategoryColor = (color) => {
@@ -54,7 +58,7 @@ class AddCategory extends Component {
     }
 
     saveCategory = () => {
-        let categories = JSON.parse(localStorage.getItem('categories')) || [];
+        let categories = this.props.categories.array;
         let newCategory = {
             id: 'c' + Date.now(),
             icon: this.state.categoryIcon,
@@ -64,10 +68,21 @@ class AddCategory extends Component {
 
         categories.push(newCategory);
 
+        
+
         store.dispatch(addCategory(categories));
         store.dispatch(changeCategory(newCategory));
 
         asyncLocalStorage.setItem('categories', categories);
+
+        if (this.props.location.state !== undefined && this.props.location.state.recipe !== undefined) {
+            let recipes = this.props.recipes.array;
+            let recipe = this.props.location.state.recipe;
+            recipe.category = newCategory.id;
+            let array = recipes.map(elem => elem.id === recipe.id ? recipe : elem);
+            store.dispatch(addRecipe(array));
+            asyncLocalStorage.setItem('recipes', array);
+        }        
     }
     
 

@@ -4,6 +4,7 @@
 @import url("../style/add-recipe.css");
 @import url("../style/change-recipe.css");
 @import url("../style/recipe.css");
+@import url("../style/croppie.css");
 
 .back-btn {
 	height: calc(2.5vh + 2.5vw);
