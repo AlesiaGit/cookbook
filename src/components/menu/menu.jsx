@@ -33,6 +33,8 @@ class Menu extends Component {
         this.setState({
             selectedCategoriesList: this.props.categories.array.filter(elem => categories.indexOf(elem.id) !== -1)
         })
+
+        this.setStatusBarColor(this.state.selectedCategory.color);
     }
 
     componentWillReceiveProps = (nextProps) => {
@@ -43,6 +45,10 @@ class Menu extends Component {
                 selectedCategoriesList: this.props.categories.array.filter(elem => array.map(elem => elem = elem.category).indexOf(elem.id) !== -1)
             }, () => this.forceUpdate());
         }
+    }
+
+    setStatusBarColor = (color) => {
+        document.querySelector('meta[name=theme-color]').setAttribute('content', color);
     }
 
     toggleHeaderMenu = () => {

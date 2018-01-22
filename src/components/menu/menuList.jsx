@@ -1,13 +1,16 @@
 import React, { Component } from "react";
 //import PropTypes from "prop-types";
 
-import store from "../../store/store";
-import { deleteFromMenu } from "../../ducks/menu";
-
+//components
 import MenuItems from "./menuItems";
 
+//utils
 import settings from "../../config";
 import { asyncLocalStorage } from "../../utils/asyncLocalStorage";
+
+//store
+import store from "../../store/store";
+import { deleteFromMenu } from "../../ducks/menu";
 
 class MenuList extends Component {
 	constructor(props) {
