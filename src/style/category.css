@@ -204,6 +204,8 @@ body {
 .drawer__category-info {
     display: flex;
     align-items: center;
+    width: 100%;
+    text-decoration: none;
 }
 
 .drawer__category-icon {
@@ -245,6 +247,10 @@ body {
     width: 100%;
     justify-content: space-between;
     align-items: center;
+}
+
+.drawer__category-title {
+    color: #404040;
 }
 
 .drawer__category-recipes-count {
@@ -353,6 +359,7 @@ body {
 	border: 0;
     -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
     -webkit-user-select: none;
+    touch-action: manipulation;
     text-decoration: none;
     color: #404040;
     position: relative;
@@ -402,6 +409,7 @@ body {
     height: 70%;
     background-repeat: no-repeat;
     background-position: 50%;
+    background-size: cover;
 }
 
 .category__add-recipe-btn {
@@ -459,4 +467,5 @@ body {
     -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
     background-color: rgba(255, 255, 255, 0.5);
     margin-top: 2vh;
+    z-index: 2;
 }

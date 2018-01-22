@@ -1,5 +1,7 @@
 import defaultIcon from "./img/svg/app-icon.svg";
+import defaultImage from "./img/icons/app-cover-image.png";
 import menuIcon from "./img/svg/menu-icon.svg";
+import menuImage from "./img/icons/menu-cover-image.png";
 
 import ananasIcon from "./img/svg/ananas.svg";
 import appleIcon from "./img/svg/apple.svg";
@@ -30,13 +32,15 @@ const settings = {
 	    id: 'default',
 	    icon: defaultIcon,
 	    name: "Все рецепты",
-	    color: "#e7989e"
+	    color: "#e7989e",
+	    image: defaultImage
 	},
 	menuCategory: {
 		id: 'menu',
 		icon: menuIcon,
-		name: "Составить меню",
-		color: "#dbaf47"
+		name: "Меню",
+		color: "#dbaf47",
+		image: menuImage
 	}
 }
 

@@ -18,12 +18,12 @@ export default function menu(state = initialState, action) {
         case MENU_ITEM_ADDED:
             return {
                 ...state,
-                array: state.array.push(action.data)
+                array: action.data
             };
         case MENU_ITEM_DELETED:
         return {
             ...state,
-            array: state.array.filter(elem => elem !== action.data)
+            array: action.data
         };
         case MENU_RESET:
         return {
@@ -36,17 +36,17 @@ export default function menu(state = initialState, action) {
 }
 
 // Action creators
-export function addToMenu(id) {
+export function addToMenu(array) {
     return {
         type: MENU_ITEM_ADDED,
-        data: id
+        data: array
     };
 }
 
-export function deleteFromMenu(id) {
+export function deleteFromMenu(array) {
     return {
         type: MENU_ITEM_DELETED,
-        data: id
+        data: array
     };
 }
 
