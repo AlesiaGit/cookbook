@@ -22,7 +22,7 @@ class Menu extends Component {
             value: '',
             startButton: true,
             headerMenu: false,
-            menu: this.props.menu.array,
+            //menu: this.props.menu.array,
             selectedCategory: settings.menuCategory,
             selectedCategoryRecipes: this.props.recipes.array.filter(elem => this.props.menu.array.indexOf(elem.id) !== -1)
         };
@@ -43,7 +43,7 @@ class Menu extends Component {
             this.setState({
                 selectedCategoryRecipes: array,
                 selectedCategoriesList: this.props.categories.array.filter(elem => array.map(elem => elem = elem.category).indexOf(elem.id) !== -1)
-            }, () => this.forceUpdate());
+            });
         }
     }
 

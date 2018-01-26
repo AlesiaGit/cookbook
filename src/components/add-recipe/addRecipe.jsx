@@ -10,8 +10,10 @@ import BackButton from "./backButton";
 import IngredientsList from "./ingredientsList";
 
 //utils
-import { asyncLocalStorage } from "../../utils/asyncLocalStorage";
+//import { asyncLocalStorage } from "../../utils/asyncLocalStorage";
 import settings from "../../config";
+import firebaseApp from "../../utils/firebase";
+//import 'firebase/firestore';
 
 //store
 import store from "../../store/store";
@@ -22,7 +24,8 @@ const mapStateToProps = state => {
     return {
          recipes: state.recipes,
          categories: state.categories,
-         menu: state.menu
+         menu: state.menu,
+         login: state.login
     };
 };
 
@@ -185,7 +188,9 @@ class AddRecipe extends Component {
     }
 
     saveRecipe = () => {
-        let recipes = this.props.recipes.array;
+        //let recipes = this.props.recipes.array;
+        //let ingredients = this.state.recipeIngredients.length === 0 ? '' : this.state.recipeIngredients; //firebase
+
         let newRecipe = {
             id: this.state.recipeId,
             cooktime: {
@@ -204,21 +209,24 @@ class AddRecipe extends Component {
             recipe: newRecipe
         })
 
-        let array = recipes.filter(elem => elem.id !== newRecipe.id);
-        array.push(newRecipe);
-        store.dispatch(addRecipe(array));
-        asyncLocalStorage.setItem('recipes', array);
+        let recipes = this.props.recipes.array.filter(elem => elem.id !== newRecipe.id);
+        recipes.push(newRecipe);
+        store.dispatch(addRecipe(recipes));
+        firebaseApp.firestore().collection(this.props.login.uid).doc('recipes').set({recipes});
+        //asyncLocalStorage.setItem('recipes', recipes);
     }
 
     deleteRecipe = () => {
-        let remainingRecipes = this.props.recipes.filter(elem => elem.id !== this.state.recipeId);
-        store.dispatch(deleteRecipe(remainingRecipes));
-        asyncLocalStorage.setItem('recipes', remainingRecipes);
+        let recipes = this.props.recipes.filter(elem => elem.id !== this.state.recipeId);
+        store.dispatch(deleteRecipe(recipes));
+        firebaseApp.firestore().collection(this.props.login.uid).doc('recipes').set({recipes});
+        //asyncLocalStorage.setItem('recipes', remainingRecipes);
 
-        let remainingRecipesIndices = remainingRecipes.map(elem => elem = elem.id);
-        let remainingMenu = this.props.menu.array.filter(elem => remainingRecipesIndices.indexOf(elem) !== -1);
-        store.dispatch(deleteFromMenu(remainingMenu));
-        asyncLocalStorage.setItem('menu', remainingMenu);
+        let remainingRecipesIndices = recipes.map(elem => elem = elem.id);
+        let menu = this.props.menu.array.filter(elem => remainingRecipesIndices.indexOf(elem) !== -1);
+        store.dispatch(deleteFromMenu(menu));
+        firebaseApp.firestore().collection(this.props.login.uid).doc('menu').set({menu});
+        //asyncLocalStorage.setItem('menu', remainingMenu);
     }
 
     handleCategoryChange = (category) => {

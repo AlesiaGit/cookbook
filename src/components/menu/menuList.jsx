@@ -32,6 +32,16 @@ class MenuList extends Component {
         clearTimeout(this.longPressTimer);
 	}
 
+    componentWillReceiveProps = (nextProps) => {
+        if (this.state.recipes !== nextProps.recipes) {
+            this.setState({
+                alertBox: nextProps.recipes.map(elem => false),
+                recipes: nextProps.recipes,
+                categories: nextProps.categories
+            })
+        }
+    }
+
     handleContextMenu = (event) => {
         event.preventDefault();
         event.stopPropagation();
@@ -105,10 +115,10 @@ class MenuList extends Component {
         let table = [];
         let itemsPerRow = 2;
 
-        for (let i = 0; i < Math.round(this.props.recipes.length / itemsPerRow); i++) {
+        for (let i = 0; i < Math.round(this.state.recipes.length / itemsPerRow); i++) {
             let row = [];
             for (let j = 0; j < itemsPerRow; j++) {
-                row.push(this.props.recipes[i * itemsPerRow + j]);
+                row.push(this.state.recipes[i * itemsPerRow + j]);
             }
             table.push(row);
         }
@@ -119,7 +129,7 @@ class MenuList extends Component {
                    <div key={index}>
                          <MenuItems
                          	recipes={this.state.recipes}
-                            categories={this.props.categories}
+                            categories={this.state.categories}
                          	rowIndex={index}
                             rowData={item}
                             onTouchStart={this.handleRecipeLongPress}

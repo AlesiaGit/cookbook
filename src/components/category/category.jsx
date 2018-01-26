@@ -9,7 +9,7 @@ import RecipesList from "./recipesList";
 import HeaderMenu from "./headerMenu";
 
 //utils
-import { asyncLocalStorage } from "../../utils/asyncLocalStorage";
+import firebaseApp from "../../utils/firebase";
 
 //store
 import store from "../../store/store";
@@ -21,7 +21,8 @@ const mapStateToProps = state => {
     return {
         recipes: state.recipes,
         categories: state.categories,
-        menu: state.menu
+        menu: state.menu,
+        login: state.login
     };
 };
 
@@ -112,26 +113,26 @@ class Category extends Component {
     }
 
     deleteCategory = (category) => {
-        let remainingCategories = this.state.categories.filter(elem => elem !== category);
-        let remainingRecipes = this.state.recipes.filter(elem => elem.category !== category.id);
+        let categories = this.state.categories.filter(elem => elem !== category);
+        let recipes = this.state.recipes.filter(elem => elem.category !== category.id);
 
-        let remainingRecipesIndices = remainingRecipes.map(elem => elem = elem.id);
-        let remainingMenu = this.props.menu.array.filter(elem => remainingRecipesIndices.indexOf(elem) !== -1);
+        let remainingRecipesIndices = recipes.map(elem => elem = elem.id);
+        let menu = this.props.menu.array.filter(elem => remainingRecipesIndices.indexOf(elem) !== -1);
 
         this.setState({
-            categories: remainingCategories,
-            recipes: remainingRecipes,
+            categories: categories,
+            recipes: recipes,
             headerMenu: false,
             drawer: false
         });
 
-        asyncLocalStorage.setItem('recipes', remainingRecipes);
-        asyncLocalStorage.setItem('categories', remainingCategories);
-        asyncLocalStorage.setItem('menu', remainingMenu);
-        
-        store.dispatch(deleteRecipe(remainingRecipes));
-        store.dispatch(deleteCategory(remainingCategories));
-        store.dispatch(deleteFromMenu(remainingMenu));
+        firebaseApp.firestore().collection(this.props.login.uid).doc('recipes').set({recipes});
+        firebaseApp.firestore().collection(this.props.login.uid).doc('categories').set({categories});
+        firebaseApp.firestore().collection(this.props.login.uid).doc('menu').set({menu});
+
+        store.dispatch(deleteRecipe(recipes));
+        store.dispatch(deleteCategory(categories));
+        store.dispatch(deleteFromMenu(menu));
     }
 
     handleInput = (event) => {

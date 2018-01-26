@@ -6,8 +6,9 @@ import { connect } from "react-redux";
 import RecipeItem from "./recipeItem";
 
 //utils
-import { asyncLocalStorage } from "../../utils/asyncLocalStorage";
+//import { asyncLocalStorage } from "../../utils/asyncLocalStorage";
 import settings from "../../config";
+import firebaseApp from "../../utils/firebase";
 
 //store
 import store from "../../store/store";
@@ -15,7 +16,8 @@ import { addToMenu, deleteFromMenu } from "../../ducks/menu";
 
 const mapStateToProps = state => {
     return {
-        menu: state.menu
+        menu: state.menu,
+        login: state.login
     };
 };
 
@@ -114,17 +116,19 @@ class RecipesList extends Component {
 
     handleRecipeMenuToggle = recipe => {
         if (recipe && this.state.menu.indexOf(recipe.id) === -1) {
-            let array = this.state.menu;
-            array.push(recipe.id);
-            asyncLocalStorage.setItem('menu', array);
-            store.dispatch(addToMenu(array));
+            let menu = this.state.menu;
+            menu.push(recipe.id);
+            //asyncLocalStorage.setItem('menu', array);
+            store.dispatch(addToMenu(menu));
+            firebaseApp.firestore().collection(this.props.login.uid).doc('menu').set({menu});
             return;
         }
 
         if (recipe && this.state.menu.indexOf(recipe.id) !== -1) {
-            let array = this.state.menu.filter(elem => elem !== recipe.id);
-            asyncLocalStorage.setItem('menu', array);
-            store.dispatch(deleteFromMenu(array));
+            let menu = this.state.menu.filter(elem => elem !== recipe.id);
+            //asyncLocalStorage.setItem('menu', array);
+            store.dispatch(deleteFromMenu(menu));
+            firebaseApp.firestore().collection(this.props.login.uid).doc('menu').set({menu});
             return;
         } 
     }

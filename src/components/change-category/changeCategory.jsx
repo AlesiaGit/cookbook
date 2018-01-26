@@ -8,8 +8,10 @@ import ColorsTable from "./colorsTable";
 import IconsTable from "./iconsTable";
 
 //utils
-import { asyncLocalStorage } from "../../utils/asyncLocalStorage";
+//import { asyncLocalStorage } from "../../utils/asyncLocalStorage";
 import settings from "../../config";
+import firebaseApp from "../../utils/firebase";
+//import 'firebase/firestore';
 
 //store
 import store from "../../store/store";
@@ -17,7 +19,8 @@ import { addCategory} from "../../ducks/categories";
 
 const mapStateToProps = state => {
     return {
-        categories: state.categories
+        categories: state.categories,
+        login: state.login
     };
 };
 
@@ -88,9 +91,10 @@ class ChangeCategory extends Component {
             color: this.state.categoryColor
         };
 
-        var changedArray = this.props.categories.array.map(elem => elem.id === this.state.categoryId ? changedCategory : elem);
-        store.dispatch(addCategory(changedArray));
-        asyncLocalStorage.setItem('categories', changedArray);
+        var categories = this.props.categories.array.map(elem => elem.id === this.state.categoryId ? changedCategory : elem);
+        store.dispatch(addCategory(categories));
+        firebaseApp.firestore().collection(this.props.login.uid).doc('categories').set({categories});
+        //asyncLocalStorage.setItem('categories', changedArray);
     }
     
 

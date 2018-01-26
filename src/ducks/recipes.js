@@ -5,10 +5,14 @@ export const RECIPE_ADDED = "cookbook/recipes/RECIPE_ADDED";
 export const RECIPE_DELETED = "cookbook/recipes/RECIPE_DELETED";
 
 // Reducer
-let recipesArray = JSON.parse(localStorage.getItem('recipes')) || [];
+/*let recipesArray = JSON.parse(localStorage.getItem('recipes')) || [];
 
 let initialState = {
     array: recipesArray
+};*/
+
+let initialState = {
+    array: []
 };
 
 export default function recipes(state = initialState, action) {

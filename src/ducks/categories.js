@@ -5,12 +5,16 @@ export const CATEGORY_ADDED = "cookbook/category/CATEGORY_ADDED";
 export const CATEGORY_DELETED = "cookbook/category/CATEGORY_DELETED";
 
 // Reducer
-let categoriesArray = JSON.parse(localStorage.getItem('categories')) || [];
+/*let categoriesArray = JSON.parse(localStorage.getItem('categories')) || [];
 let count = categories.length;
 
 let initialState = {
     count: count,
     array: categoriesArray
+};*/
+
+let initialState = {
+    array: []
 };
 
 export default function categories(state = initialState, action) {
@@ -18,13 +22,11 @@ export default function categories(state = initialState, action) {
         case CATEGORY_ADDED:
             return {
                 ...state,
-                count: state.count + action.step,
                 array: action.data
             };
         case CATEGORY_DELETED:
         return {
             ...state,
-            count: state.count - action.step,
             array: action.data
         };
         default:
@@ -36,7 +38,6 @@ export default function categories(state = initialState, action) {
 export function addCategory(data) {
     return {
         type: CATEGORY_ADDED,
-        step: 1,
         data: data
     };
 }
@@ -44,7 +45,6 @@ export function addCategory(data) {
 export function deleteCategory(data) {
     return {
         type: CATEGORY_DELETED,
-        step: 1,
         data: data
     };
 }

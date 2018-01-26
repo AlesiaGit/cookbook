@@ -9,7 +9,9 @@ import IconsTable from "./iconsTable";
 
 //utils
 import settings from "../../config";
-import { asyncLocalStorage } from "../../utils/asyncLocalStorage";
+//import { asyncLocalStorage } from "../../utils/asyncLocalStorage";
+import firebaseApp from "../../utils/firebase";
+import 'firebase/firestore';
 
 //store
 import store from "../../store/store";
@@ -19,7 +21,8 @@ import { addRecipe } from "../../ducks/recipes";
 const mapStateToProps = state => {
     return {
         categories: state.categories,
-        recipes: state.recipes
+        recipes: state.recipes,
+        login: state.login
     };
 };
 
@@ -82,17 +85,18 @@ class AddCategory extends Component {
         };
         categories.push(newCategory);
         store.dispatch(addCategory(categories));
-        asyncLocalStorage.setItem('categories', categories);
+        firebaseApp.firestore().collection(this.props.login.uid).doc('categories').set({categories});
+        // asyncLocalStorage.setItem('categories', categories);
+
 
         if (this.state.fromRecipe) {
-
             let targetRecipe = this.props.recipes.array.filter(elem => elem.id === this.state.fromRecipe)[0];
             targetRecipe.category = newCategory.id;
-
-            let remainingRecipes = this.props.recipes.array.map(elem => elem.id !== this.state.fromRecipe ? targetRecipe : elem);
-
-            store.dispatch(addRecipe(remainingRecipes));
-            asyncLocalStorage.setItem('recipes', remainingRecipes);
+            
+            let recipes = this.props.recipes.array.map(elem => elem.id !== this.state.fromRecipe ? targetRecipe : elem);
+            store.dispatch(addRecipe(recipes));
+            firebaseApp.firestore().collection(this.props.login.uid).doc('recipes').set({recipes});
+            //asyncLocalStorage.setItem('recipes', recipes);
         }
     }
 

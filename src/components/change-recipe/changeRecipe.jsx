@@ -9,7 +9,9 @@ import CategoriesDropDown from './categoriesDropDown';
 import IngredientsList from "./ingredientsList";
 
 //utils
-import { asyncLocalStorage } from "../../utils/asyncLocalStorage";
+//import { asyncLocalStorage } from "../../utils/asyncLocalStorage";
+import firebaseApp from "../../utils/firebase";
+//import 'firebase/firestore';
 
 //store
 import store from "../../store/store";
@@ -18,7 +20,8 @@ import { addRecipe } from "../../ducks/recipes";
 const mapStateToProps = state => {
     return {
          recipes: state.recipes,
-         categories: state.categories
+         categories: state.categories,
+         login: state.login
     };
 };
 
@@ -159,7 +162,7 @@ class ChangeRecipe extends Component {
     }
 
     saveRecipe = () => {
-        let recipes = this.props.recipes.array;
+        //let recipes = this.props.recipes.array;
 
         let updatedRecipe = {
             id: this.state.recipeId,
@@ -179,10 +182,11 @@ class ChangeRecipe extends Component {
             recipe: updatedRecipe
         })
 
-        let array = recipes.filter(elem => elem.id !== updatedRecipe.id);
-        array.push(updatedRecipe);
-        store.dispatch(addRecipe(array));
-        asyncLocalStorage.setItem('recipes', array);
+        let recipes = this.props.recipes.array.filter(elem => elem.id !== updatedRecipe.id);
+        recipes.push(updatedRecipe);
+        store.dispatch(addRecipe(recipes));
+        firebaseApp.firestore().collection(this.props.login.uid).doc('recipes').set({recipes});
+        //asyncLocalStorage.setItem('recipes', recipes);
     }
 
     handleCategoryChange = (category) => {

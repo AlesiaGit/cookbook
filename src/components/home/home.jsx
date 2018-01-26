@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Link } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
 import { connect } from "react-redux";
 //import PropTypes from "prop-types";
 
@@ -9,19 +9,20 @@ import RecipesList from "./recipesList";
 
 //utils
 import settings from "../../config";
-import { asyncLocalStorage } from "../../utils/asyncLocalStorage";
+import firebaseApp from "../../utils/firebase";
 
 //store
 import store from "../../store/store";
-import { deleteCategory } from "../../ducks/categories";
-import { deleteRecipe } from "../../ducks/recipes";
+import { addCategory, deleteCategory } from "../../ducks/categories";
+import { addRecipe, deleteRecipe } from "../../ducks/recipes";
 import { deleteFromMenu } from "../../ducks/menu";
 
 const mapStateToProps = state => {
     return {
         recipes: state.recipes,
         categories: state.categories,
-        menu: state.menu
+        menu: state.menu,
+        login: state.login
     };
 };
 
@@ -39,6 +40,8 @@ class Home extends Component {
             recipes: this.props.recipes.array,
             selectedCategory: settings.defaultCategory,
             selectedCategoryRecipes: this.props.recipes.array,
+            redirect: false,
+            db: firebaseApp.firestore()
         };
     }
 
@@ -47,6 +50,31 @@ class Home extends Component {
             ratio: window.innerWidth/window.innerHeight
         });
         this.setStatusBarColor(this.state.selectedCategory.color);
+
+        if (this.props.login.uid === "undefined") return this.setState({ redirect: true});
+
+        this.state.db.collection(this.props.login.uid)
+        .get()
+        .then((querySnapshot) => {
+            querySnapshot.forEach((doc) => {
+                if (Object.keys(doc.data())[0] === 'recipes') {
+                    let recipes = Object.values(doc.data())[0];
+                    store.dispatch(addRecipe(recipes));
+                    this.setState({
+                        recipes: recipes,
+                        selectedCategoryRecipes: recipes
+                    })
+                }
+
+                if (Object.keys(doc.data())[0] === 'categories') {
+                    let categories = Object.values(doc.data())[0];
+                    store.dispatch(addCategory(categories));
+                    this.setState({
+                        categories: categories
+                    })
+                }
+            });
+        });
     }
 
     setStatusBarColor = (color) => {
@@ -61,7 +89,8 @@ class Home extends Component {
         this.setState({
             drawer: !this.state.drawer,
             startButton: !this.state.startButton
-        })
+        });
+
     }
 
     toggleHeaderMenu = () => {
@@ -71,10 +100,10 @@ class Home extends Component {
     }
 
     logOut = () => {
-        //add logout functionality
-        // this.setState({
-        //     headerMenu: !this.state.headerMenu,
-        // })
+        firebaseApp.auth().signOut();
+        this.setState({
+            redirect: true
+        });
     }
 
     drawCategoryIcon = (category) => {
@@ -103,26 +132,26 @@ class Home extends Component {
     }
 
     deleteCategory = (category) => {
-        let remainingCategories = this.state.categories.filter(elem => elem !== category);
-        let remainingRecipes = this.state.recipes.filter(elem => elem.category !== category.id);
+        let categories = this.state.categories.filter(elem => elem !== category);
+        let recipes = this.state.recipes.filter(elem => elem.category !== category.id);
 
-        let remainingRecipesIndices = remainingRecipes.map(elem => elem = elem.id);
-        let remainingMenu = this.props.menu.array.filter(elem => remainingRecipesIndices.indexOf(elem) !== -1);
+        let remainingRecipesIndices = recipes.map(elem => elem = elem.id);
+        let menu = this.props.menu.array.filter(elem => remainingRecipesIndices.indexOf(elem) !== -1);
 
         this.setState({
-            categories: remainingCategories,
-            recipes: remainingRecipes,
+            categories: categories,
+            recipes: recipes,
             headerMenu: false,
             drawer: false
         });
 
-        asyncLocalStorage.setItem('recipes', remainingRecipes);
-        asyncLocalStorage.setItem('categories', remainingCategories);
-        asyncLocalStorage.setItem('menu', remainingMenu);
+        firebaseApp.firestore().collection(this.props.login.uid).doc('recipes').set({recipes});
+        firebaseApp.firestore().collection(this.props.login.uid).doc('categories').set({categories});
+        firebaseApp.firestore().collection(this.props.login.uid).doc('menu').set({menu});
 
-        store.dispatch(deleteRecipe(remainingRecipes));
-        store.dispatch(deleteCategory(remainingCategories));
-        store.dispatch(deleteFromMenu(remainingMenu));
+        store.dispatch(deleteRecipe(recipes));
+        store.dispatch(deleteCategory(categories));
+        store.dispatch(deleteFromMenu(menu));
 
     }
 
@@ -144,6 +173,8 @@ class Home extends Component {
     
 
     render() {
+        if (this.state.redirect) return (<Redirect to="/login" />);
+
         let categoryColor = this.state.selectedCategory.color;
         let drawerVisibility = this.state.drawer ? "flex" : "none";
         let sideMenuDisplay = this.state.sideMenu ? "flex" : "none";
@@ -175,9 +206,11 @@ class Home extends Component {
                 </div>
                 <div className="category__header-overlay-menu">
                     <Link 
-                        to="/"
-                        className="category__header-overlay-menu-item" 
-                        onClick={this.logOut}>Logout</Link>
+                        to="/login"
+                        className="category__header-overlay-menu-item"
+                        onClick={this.logOut}>
+                        Выйти
+                    </Link>
                 </div>
             </div>
             <div className="category__body">

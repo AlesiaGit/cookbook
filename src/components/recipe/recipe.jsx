@@ -8,7 +8,9 @@ import HeaderMenu from "./headerMenu";
 
 //utils
 import settings from "../../config";
-import { asyncLocalStorage } from "../../utils/asyncLocalStorage";
+//import { asyncLocalStorage } from "../../utils/asyncLocalStorage";
+import firebaseApp from "../../utils/firebase";
+//import 'firebase/firestore';
 
 //store
 import store from "../../store/store";
@@ -19,7 +21,8 @@ const mapStateToProps = state => {
     return {
         recipes: state.recipes,
         categories: state.categories,
-        menu: state.menu
+        menu: state.menu,
+        login: state.login
     };
 };
 
@@ -44,7 +47,8 @@ class Recipe extends Component {
             });
         } else {
     		this.setState({
-                selectedCategory: this.props.categories.array.filter(elem => elem.id === this.state.recipe.category)[0]
+                selectedCategory: this.props.categories.array.filter(elem => elem.id === this.state.recipe.category)[0],
+                recipeIngredients: this.state.recipe.ingredients === '' ? [] : this.state.recipe.ingredients, //firebase
             }, () => document.querySelector('meta[name=theme-color]').setAttribute('content', this.state.selectedCategory.color));
         }  
     }
@@ -70,30 +74,34 @@ class Recipe extends Component {
     }
 
     deleteRecipe = () => {
-    	let remainingRecipes = this.props.recipes.array.filter(elem => {
+    	let recipes = this.props.recipes.array.filter(elem => {
     		return elem.id !== this.state.recipe.id;
     	});
-    	store.dispatch(deleteRecipe(remainingRecipes));
-    	asyncLocalStorage.setItem('recipes', remainingRecipes);
+    	store.dispatch(deleteRecipe(recipes));
+        firebaseApp.firestore().collection(this.props.login.uid).doc('recipes').set({recipes});
+    	//asyncLocalStorage.setItem('recipes', recipes);
 
-    	let remainingRecipesIndices = remainingRecipes.map(elem => elem = elem.id);
-        let remainingMenu = this.props.menu.array.filter(elem => remainingRecipesIndices.indexOf(elem) !== -1);
-        store.dispatch(deleteFromMenu(remainingMenu));
-        asyncLocalStorage.setItem('menu', remainingMenu);
+    	let remainingRecipesIndices = recipes.map(elem => elem = elem.id);
+        let menu = this.props.menu.array.filter(elem => remainingRecipesIndices.indexOf(elem) !== -1);
+        store.dispatch(deleteFromMenu(menu));
+        firebaseApp.firestore().collection(this.props.login.uid).doc('menu').set({menu});
+        //asyncLocalStorage.setItem('menu', remainingMenu);
     }
 
     handleRecipeMenuToggle = () => {
         if (!this.state.isInMenu) {
-            let array = this.props.menu.array;
-            array.push(this.state.recipe.id);
-            asyncLocalStorage.setItem('menu', array);
-            store.dispatch(addToMenu(array));
+            let menu = this.props.menu.array;
+            menu.push(this.state.recipe.id);
+            //asyncLocalStorage.setItem('menu', array);
+            store.dispatch(addToMenu(menu));
+            firebaseApp.firestore().collection(this.props.login.uid).doc('menu').set({menu});
             return;
         }
 
-        let array = this.props.menu.array.filter(elem => elem !== this.state.recipe.id);
-        asyncLocalStorage.setItem('menu', array);
-        store.dispatch(deleteFromMenu(array));
+        let menu = this.props.menu.array.filter(elem => elem !== this.state.recipe.id);
+        //asyncLocalStorage.setItem('menu', array);
+        store.dispatch(deleteFromMenu(menu));
+        firebaseApp.firestore().collection(this.props.login.uid).doc('menu').set({menu});
     }
    
     render() {
@@ -135,7 +143,7 @@ class Recipe extends Component {
 				<div className="recipe__block-wrapper">
 					<div className="recipe__block-title" style={{color: this.state.selectedCategory.color}}>Ингредиенты</div>
 					<ul className="recipe__block-list">
-						{this.state.recipe.ingredients.map((elem, index) => (
+						{this.state.recipeIngredients.map((elem, index) => (
 							<li key={index}>{elem.ingredientName} - {elem.ingredientQuantity} {elem.ingredientUnits}</li>
 						))}
 					</ul>
