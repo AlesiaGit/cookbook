@@ -29,7 +29,7 @@ class RecipesList extends Component {
 	        alertBox: this.props.recipes.map(elem => false),
             menu: this.props.menu.array
 	    }
-	}
+   	}
 
     componentWillMount = () => {
         document.addEventListener('contextmenu', this.handleContextMenu);

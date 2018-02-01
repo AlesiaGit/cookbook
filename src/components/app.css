@@ -5,6 +5,7 @@
 @import url("../style/change-recipe.css");
 @import url("../style/recipe.css");
 @import url("../style/login.css");
+@import url("../style/menu.css");
 @import url("../style/croppie.css");
 
 .back-btn {
@@ -24,3 +25,27 @@
 	background-repeat: no-repeat;
 	background-position: 50%;
 }
+
+.spinner-wrapper {
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	height: calc(10vh + 10vw);
+	width:  calc(10vh + 10vw);
+	transform: translate(-50%, -50%);
+	margin: calc(1vh + 1vw);
+}
+
+.spinner {
+	background-color: red;
+	width: 100%;
+	height: 100%;
+}
+
+.error {
+    font-size: calc(1.5vh + 1.5vw);
+    color: red;
+    margin-top: 0.5vh;
+    font-family: "Roboto", sans-serif;
+}
+

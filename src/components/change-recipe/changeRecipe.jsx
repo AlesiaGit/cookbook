@@ -9,9 +9,7 @@ import CategoriesDropDown from './categoriesDropDown';
 import IngredientsList from "./ingredientsList";
 
 //utils
-//import { asyncLocalStorage } from "../../utils/asyncLocalStorage";
-import firebaseApp from "../../utils/firebase";
-//import 'firebase/firestore';
+import { db } from "../../utils/firebase";
 
 //store
 import store from "../../store/store";
@@ -144,8 +142,13 @@ class ChangeRecipe extends Component {
     }
 
     addIngredient = () => {
+        if (this.state.ingredientName === '' || this.state.ingredientQuantity === '') return;
+
+        let trimmed = this.state.ingredientName.trim();
+        let name = trimmed.charAt(0).toUpperCase() + trimmed.slice(1).toLowerCase();
+
         let ingredient = {
-            ingredientName: this.state.ingredientName,
+            ingredientName: name,
             ingredientQuantity: this.state.ingredientQuantity,
             ingredientUnits: this.state.ingredientUnits,
         };
@@ -162,19 +165,22 @@ class ChangeRecipe extends Component {
     }
 
     saveRecipe = () => {
-        //let recipes = this.props.recipes.array;
+        let hours = this.state.recipeCookHours === '' ? "0" : this.state.recipeCookHours;
+        let minutes = this.state.recipeCookMinutes === '' ? '00' : this.state.recipeCookMinutes;
+        let portions = this.state.recipePortions === '' ? "1" : this.state.recipePortions;
+        let title = this.state.recipeName === '' ? 'Без названия' : this.state.recipeName;
 
         let updatedRecipe = {
             id: this.state.recipeId,
             cooktime: {
-                hours: this.state.recipeCookHours, 
-                minutes: this.state.recipeCookMinutes
+                hours: hours, 
+                minutes: minutes
             }, 
             image: this.state.resultImage,
             ingredients: this.state.recipeIngredients, 
-            portions: this.state.recipePortions, 
+            portions: portions, 
             steps:this.state.recipeDescription, 
-            title: this.state.recipeName,
+            title: title,
             category: this.state.selectedCategory.id
         };
 
@@ -185,8 +191,7 @@ class ChangeRecipe extends Component {
         let recipes = this.props.recipes.array.filter(elem => elem.id !== updatedRecipe.id);
         recipes.push(updatedRecipe);
         store.dispatch(addRecipe(recipes));
-        firebaseApp.firestore().collection(this.props.login.uid).doc('recipes').set({recipes});
-        //asyncLocalStorage.setItem('recipes', recipes);
+        db.collection(this.props.login.uid).doc('recipes').set({recipes});
     }
 
     handleCategoryChange = (category) => {
@@ -220,173 +225,175 @@ class ChangeRecipe extends Component {
                     />
                 </div>
             </div>
-            <div 
-                className="change-recipe__add-picture-wrapper" 
-                ref={resultWrapper => {this.resultWrapper = resultWrapper}} 
-                style={{backgroundImage: this.state.resultImage}} >
-                <label className="change-recipe__add-picture-icon">
-                    <input type="file" className="change-recipe__add-picture-input" onChange={this.handleFileUpload} />
-                </label>
-                <div className="change-recipe__add-picture-text">Изменить фотографию</div>
-            </div>
-            <div 
-                className="change-recipe__image-cropper-wrapper" 
-                style={{display: cropperDisplay, width: this.state.width, height: 'calc(' + this.state.height + ' + 8vh)'}}>
+            <div className="change-recipe__scroll">
                 <div 
-                    className="change-recipe__cropper" 
-                    ref={croppie => {this.croppie = croppie}} 
-                    style={{width: this.state.width, height: this.state.height}}>
+                    className="change-recipe__add-picture-wrapper" 
+                    ref={resultWrapper => {this.resultWrapper = resultWrapper}} 
+                    style={{backgroundImage: this.state.resultImage}} >
+                    <label className="change-recipe__add-picture-icon">
+                        <input type="file" className="change-recipe__add-picture-input" onChange={this.handleFileUpload} />
+                    </label>
+                    <div className="change-recipe__add-picture-text">Изменить фотографию</div>
                 </div>
-                <div className="change-recipe__image-cropper-buttons-wrapper" style={{backgroundColor: categoryColor, width: this.state.width}} >
-                    <a className="change-recipe__image-cropper-btn image-cropper-cancel-btn" onClick={this.cancelCroppedImage}>Отменить</a>
-                    <a className="change-recipe__image-cropper-btn image-cropper-confirm-btn" onClick={this.saveCroppedImage}>Сохранить</a>
+                <div 
+                    className="change-recipe__image-cropper-wrapper" 
+                    style={{display: cropperDisplay, width: this.state.width, height: 'calc(' + this.state.height + ' + 8vh)'}}>
+                    <div 
+                        className="change-recipe__cropper" 
+                        ref={croppie => {this.croppie = croppie}} 
+                        style={{width: this.state.width, height: this.state.height}}>
+                    </div>
+                    <div className="change-recipe__image-cropper-buttons-wrapper" style={{backgroundColor: categoryColor, width: this.state.width}} >
+                        <a className="change-recipe__image-cropper-btn image-cropper-cancel-btn" onClick={this.cancelCroppedImage}>Отменить</a>
+                        <a className="change-recipe__image-cropper-btn image-cropper-confirm-btn" onClick={this.saveCroppedImage}>Сохранить</a>
+                    </div>
                 </div>
-            </div>
-            <div className="body change-recipe__body">
-                <div className="change-recipe__body-section">
-                    <div className="change-recipe__body-section-title">Название рецепта</div>
-                    <input className="change-recipe__body-section-input" 
-                        onFocus={this.preventWindowFromResize} 
-                        value={this.state.recipeName} 
-                        onChange={this.handleInputChange} 
-                        type="text" 
-                        name="recipeName" 
-                        placeholder="например, торт 'Наполеон'" 
-                    />
-                </div>
-                <div className="change-recipe__body-section">
-                    <div className="change-recipe__body-section-title">Категория</div>
-                    <CategoriesDropDown 
-                        handleCategoryChange={this.handleCategoryChange} 
-                        categories={this.state.categories}
-                        selectedCategory={this.state.selectedCategory}
-                        temp={this.state.temp}
-                        saveRecipe={this.saveRecipe}
-                        recipe={this.state.recipe}
-                    />
-                </div>
-                <div className="change-recipe__body-section">
-                    <div className="change-recipe__cooktime-portions-wrapper">
-                        <div className="change-recipe__cooktime-wrapper">
-                            <div className="change-recipe__body-section-title">Время приготовления</div>
-                            <div className="change-recipe__cooktime-inputs-wrapper">
-                                <label><input 
-                                    className="change-recipe__cooktime-input" 
-                                    onFocus={this.preventWindowFromResize} 
-                                    value={this.state.recipeCookHours} 
-                                    onChange={this.handleInputChange} 
+                <div className="change-recipe__body">
+                    <div className="change-recipe__body-section">
+                        <div className="change-recipe__body-section-title">Название рецепта</div>
+                        <input className="change-recipe__body-section-input" 
+                            onFocus={this.preventWindowFromResize} 
+                            value={this.state.recipeName} 
+                            onChange={this.handleInputChange} 
+                            type="text" 
+                            name="recipeName" 
+                            placeholder="например, торт 'Наполеон'" 
+                        />
+                    </div>
+                    <div className="change-recipe__body-section">
+                        <div className="change-recipe__body-section-title">Категория</div>
+                        <CategoriesDropDown 
+                            handleCategoryChange={this.handleCategoryChange} 
+                            categories={this.state.categories}
+                            selectedCategory={this.state.selectedCategory}
+                            temp={this.state.temp}
+                            saveRecipe={this.saveRecipe}
+                            recipe={this.state.recipe}
+                        />
+                    </div>
+                    <div className="change-recipe__body-section">
+                        <div className="change-recipe__cooktime-portions-wrapper">
+                            <div className="change-recipe__cooktime-wrapper">
+                                <div className="change-recipe__body-section-title">Время приготовления</div>
+                                <div className="change-recipe__cooktime-inputs-wrapper">
+                                    <label><input 
+                                        className="change-recipe__cooktime-input" 
+                                        onFocus={this.preventWindowFromResize} 
+                                        value={this.state.recipeCookHours} 
+                                        onChange={this.handleInputChange} 
 
-                                    type="number" 
-                                    name="recipeCookHours" 
-                                    placeholder="00" 
-                                /> час</label>
-                                <label><input 
-                                    className="change-recipe__cooktime-input" 
+                                        type="number" 
+                                        name="recipeCookHours" 
+                                        placeholder="00" 
+                                    /> час</label>
+                                    <label><input 
+                                        className="change-recipe__cooktime-input" 
+                                        onFocus={this.preventWindowFromResize} 
+                                        value={this.state.recipeCookMinutes} 
+                                        onChange={this.handleInputChange} 
+                                        type="number" 
+                                        name="recipeCookMinutes" 
+                                        placeholder="30" /> мин</label>
+                                </div>
+                            </div>
+                            <div className="change-recipe__portions-wrapper">
+                                <div className="change-recipe__body-section-title">Порции</div>
+                                <input 
+                                    className="change-recipe__portions-input" 
                                     onFocus={this.preventWindowFromResize} 
-                                    value={this.state.recipeCookMinutes} 
+                                    value={this.state.recipePortions} 
                                     onChange={this.handleInputChange} 
                                     type="number" 
-                                    name="recipeCookMinutes" 
-                                    placeholder="30" /> мин</label>
+                                    name="recipePortions" 
+                                    placeholder="1" 
+                                />
                             </div>
                         </div>
-                        <div className="change-recipe__portions-wrapper">
-                            <div className="change-recipe__body-section-title">Порции</div>
-                            <input 
-                                className="change-recipe__portions-input" 
-                                onFocus={this.preventWindowFromResize} 
-                                value={this.state.recipePortions} 
-                                onChange={this.handleInputChange} 
-                                type="number" 
-                                name="recipePortions" 
-                                placeholder="1" 
-                            />
-                        </div>
                     </div>
-                </div>
-                <div className="change-recipe__body-section">
-                    <div className="change-recipe__body-section-header">
-                        <div className="change-recipe__body-section-title">Ингредиенты</div>
-                        <div className="change-recipe__add-ingredient-btn-wrapper">
-                            <div 
-                                className="change-recipe__add-ingredient-btn" 
-                                onClick={this.addIngredient} 
-                                style={{backgroundColor: this.state.selectedCategory.color}}>
+                    <div className="change-recipe__body-section">
+                        <div className="change-recipe__body-section-header">
+                            <div className="change-recipe__body-section-title">Ингредиенты</div>
+                            <div className="change-recipe__add-ingredient-btn-wrapper">
+                                <div 
+                                    className="change-recipe__add-ingredient-btn" 
+                                    onClick={this.addIngredient} 
+                                    style={{backgroundColor: this.state.selectedCategory.color}}>
+                                </div>
+                                <div className="change-recipe__delete-ingredient-btn"></div>
                             </div>
-                            <div className="change-recipe__delete-ingredient-btn"></div>
+                        </div>
+                        <ul className="change-recipe__added-ingredients">
+                            <IngredientsList recipeIngredients={this.state.recipeIngredients} />
+                        </ul>
+                        <div className="change-recipe__subsections-wrapper">
+                            <div className="change-recipe__subsection-ingredients">
+                                <div className="change-recipe__ingredient-input-wrapper">
+                                    <input 
+                                        className="change-recipe__ingredient-input ingredient-name" 
+                                        onFocus={this.preventWindowFromResize} 
+                                        value={this.state.ingredientName} 
+                                        onChange={this.handleInputChange} 
+                                        type="text" 
+                                        name="ingredientName" 
+                                        placeholder="например, 'яйца'" 
+                                    />
+                                    <ul className="change-recipe__ingredient-hint-list"></ul>
+                                </div>  
+                                    <span className="change-recipe__ingredient-divider">-</span>
+                                    <input 
+                                        className="change-recipe__ingredient-input ingredient-quantity" 
+                                        type="number" 
+                                        name="ingredientQuantity" 
+                                        value={this.state.ingredientQuantity} 
+                                        onChange={this.handleInputChange} 
+                                        onFocus={this.preventWindowFromResize} 
+                                        placeholder="0" 
+                                    />
+                            </div>
+                            <div className="change-recipe__subsection-units">
+                                <input
+                                    style={{backgroundColor: this.state.ingredientUnits === 'мл' ? categoryColor : "#c1c1c1"}}
+                                    className="change-recipe__ingredient-unit unit-ml" 
+                                    type="radio" 
+                                    name="ingredientUnits" 
+                                    value="мл" 
+                                    checked={this.state.ingredientUnits === 'мл'} 
+                                    onChange={this.handleUnitsChange}
+                                />
+                                <input 
+                                    style={{backgroundColor: this.state.ingredientUnits === 'гр' ? categoryColor : "#c1c1c1"}}
+                                    className="change-recipe__ingredient-unit unit-gr" 
+                                    type="radio" 
+                                    name="ingredientUnits" 
+                                    value="гр" 
+                                    checked={this.state.ingredientUnits === 'гр'} 
+                                    onChange={this.handleUnitsChange} 
+                                />
+                                <input 
+                                    style={{backgroundColor: this.state.ingredientUnits === 'шт' ? categoryColor : "#c1c1c1"}}
+                                    className="change-recipe__ingredient-unit unit-item" 
+                                    type="radio" 
+                                    name="ingredientUnits" 
+                                    value="шт" 
+                                    checked={this.state.ingredientUnits === 'шт'} 
+                                    onChange={this.handleUnitsChange} 
+                                />
+                            </div>
                         </div>
                     </div>
-                    <ul className="change-recipe__added-ingredients">
-                        <IngredientsList recipeIngredients={this.state.recipeIngredients} />
-                    </ul>
-                    <div className="change-recipe__subsections-wrapper">
-                        <div className="change-recipe__subsection-ingredients">
-                            <div className="change-recipe__ingredient-input-wrapper">
-                                <input 
-                                    className="change-recipe__ingredient-input ingredient-name" 
-                                    onFocus={this.preventWindowFromResize} 
-                                    value={this.state.ingredientName} 
-                                    onChange={this.handleInputChange} 
-                                    type="text" 
-                                    name="ingredientName" 
-                                    placeholder="например, 'яйца'" 
-                                />
-                                <ul className="change-recipe__ingredient-hint-list"></ul>
-                            </div>  
-                                <span className="change-recipe__ingredient-divider">-</span>
-                                <input 
-                                    className="change-recipe__ingredient-input ingredient-quantity" 
-                                    type="number" 
-                                    name="ingredientQuantity" 
-                                    value={this.state.ingredientQuantity} 
-                                    onChange={this.handleInputChange} 
-                                    onFocus={this.preventWindowFromResize} 
-                                    placeholder="0" 
-                                />
-                        </div>
-                        <div className="change-recipe__subsection-units">
-                            <input
-                                style={{backgroundColor: this.state.ingredientUnits === 'мл' ? categoryColor : "#c1c1c1"}}
-                                className="change-recipe__ingredient-unit unit-ml" 
-                                type="radio" 
-                                name="ingredientUnits" 
-                                value="мл" 
-                                checked={this.state.ingredientUnits === 'мл'} 
-                                onChange={this.handleUnitsChange}
-                            />
-                            <input 
-                                style={{backgroundColor: this.state.ingredientUnits === 'гр' ? categoryColor : "#c1c1c1"}}
-                                className="change-recipe__ingredient-unit unit-gr" 
-                                type="radio" 
-                                name="ingredientUnits" 
-                                value="гр" 
-                                checked={this.state.ingredientUnits === 'гр'} 
-                                onChange={this.handleUnitsChange} 
-                            />
-                            <input 
-                                style={{backgroundColor: this.state.ingredientUnits === 'шт' ? categoryColor : "#c1c1c1"}}
-                                className="change-recipe__ingredient-unit unit-item" 
-                                type="radio" 
-                                name="ingredientUnits" 
-                                value="шт" 
-                                checked={this.state.ingredientUnits === 'шт'} 
-                                onChange={this.handleUnitsChange} 
-                            />
-                        </div>
+                    <div className="change-recipe__body-section">
+                        <div className="change-recipe__body-section-title">Способ приготовления</div>
+                        <textarea 
+                            className="change-recipe__body-section-textarea" 
+                            onFocus={this.preventWindowFromResize} 
+                            value={this.state.recipeDescription} 
+                            onChange={this.handleInputChange} 
+                            type="text" rows="6" 
+                            name="recipeDescription" 
+                            placeholder="Отделите белки от желтков. Желтки взбейте. Белки смешайте с сахаром. Добавьте разрыхлитель в муку. Медленно вмешивайте муку в яйца." 
+                        ></textarea>
                     </div>
-                </div>
-                <div className="change-recipe__body-section">
-                    <div className="change-recipe__body-section-title">Способ приготовления</div>
-                    <textarea 
-                        className="change-recipe__body-section-textarea" 
-                        onFocus={this.preventWindowFromResize} 
-                        value={this.state.recipeDescription} 
-                        onChange={this.handleInputChange} 
-                        type="text" rows="6" 
-                        name="recipeDescription" 
-                        placeholder="Отделите белки от желтков. Желтки взбейте. Белки смешайте с сахаром. Добавьте разрыхлитель в муку. Медленно вмешивайте муку в яйца." 
-                    ></textarea>
-                </div>
+                </div>    
             </div>
         </div>
         );

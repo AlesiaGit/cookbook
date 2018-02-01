@@ -6,21 +6,30 @@ import MenuItems from "./menuItems";
 
 //utils
 import settings from "../../config";
-import { asyncLocalStorage } from "../../utils/asyncLocalStorage";
+import { db } from "../../utils/firebase";
 
 //store
 import store from "../../store/store";
 import { deleteFromMenu } from "../../ducks/menu";
+//import { shoppingListCreated } from "../../ducks/shopping-list";
+
+/*const mapStateToProps = state => {
+    return {
+        login: state.login
+    };
+};*/
+
 
 class MenuList extends Component {
 	constructor(props) {
 		super(props);
 
 		this.state = {
-	        alertBox: this.props.recipes.map(elem => false),
-            recipes: this.props.recipes,
-            categories: this.props.categories
+	        alertBox: this.props.menuRecipes.map(elem => false),
+            recipes: this.props.menuRecipes,
+            categories: this.props.menuCategories
 	    }
+
 	}
 
     componentWillMount = () => {
@@ -33,11 +42,11 @@ class MenuList extends Component {
 	}
 
     componentWillReceiveProps = (nextProps) => {
-        if (this.state.recipes !== nextProps.recipes) {
+        if (this.state.menuRecipes !== nextProps.menuRecipes) {
             this.setState({
-                alertBox: nextProps.recipes.map(elem => false),
-                recipes: nextProps.recipes,
-                categories: nextProps.categories
+                alertBox: nextProps.menuRecipes.map(elem => false),
+                recipes: nextProps.menuRecipes,
+                categories: nextProps.menuCategories
             })
         }
     }
@@ -105,9 +114,9 @@ class MenuList extends Component {
     deleteRecipeFromMenu = (recipe) => {
         if (recipe) {
             let indices = this.state.recipes.map(elem => elem = elem.id);
-            let array = indices.filter(elem => elem !== recipe.id);
-            asyncLocalStorage.setItem('menu', array);
-            store.dispatch(deleteFromMenu(array));
+            let menu = indices.filter(elem => elem !== recipe.id);
+            store.dispatch(deleteFromMenu(menu));
+            db.collection(this.props.uid).doc('menu').set({menu});
         } 
     }
 

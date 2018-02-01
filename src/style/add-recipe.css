@@ -97,6 +97,11 @@ body {
 	outline: none;
 }
 
+.add-recipe__scroll {
+	max-height: 91vh;
+    overflow: scroll;
+}
+
 .add-recipe__body {
 	width: 87%;
 	margin: 0 auto;

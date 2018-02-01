@@ -1,16 +1,27 @@
 import React, { Component } from "react";
-import { Link } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
 import { connect } from "react-redux";
 //import PropTypes from "prop-types";
 
-import MenuList from "./menuList";
+import MenuBody from "./menuBody";
+import HeaderMenu from './headerMenu';
 import settings from "../../config";
+
+//utils
+import { db } from "../../utils/firebase";
+
+//store
+import store from "../../store/store";
+import { resetMenu } from "../../ducks/menu";
+import { shoppingListDeleted } from "../../ducks/shopping-list";
 
 const mapStateToProps = state => {
     return {
         recipes: state.recipes,
         categories: state.categories,
-        menu: state.menu
+        menu: state.menu,
+        login: state.login,
+        shoppingList: state.shoppingList
     };
 };
 
@@ -22,19 +33,24 @@ class Menu extends Component {
             value: '',
             startButton: true,
             headerMenu: false,
-            //menu: this.props.menu.array,
             selectedCategory: settings.menuCategory,
-            selectedCategoryRecipes: this.props.recipes.array.filter(elem => this.props.menu.array.indexOf(elem.id) !== -1)
+            selectedCategoryRecipes: this.props.recipes.array.filter(elem => this.props.menu.array.indexOf(elem.id) !== -1),
+            redirect: false,
+            menuList: true
         };
     }
 
     componentWillMount = () => {
+        if (this.props.categories.array.length === 0) return this.setState({ redirect: true });
+
         let categories = this.state.selectedCategoryRecipes.map(elem => elem = elem.category);
         this.setState({
             selectedCategoriesList: this.props.categories.array.filter(elem => categories.indexOf(elem.id) !== -1)
         })
 
         this.setStatusBarColor(this.state.selectedCategory.color);
+
+
     }
 
     componentWillReceiveProps = (nextProps) => {
@@ -91,38 +107,73 @@ class Menu extends Component {
             });
         }
     }
+
+    deleteMenu = () => {
+        let menu = [];
+        let shoppingList = [];
+
+        store.dispatch(resetMenu());
+        store.dispatch(shoppingListDeleted());
+
+        db.collection(this.props.login.uid).doc('menu').set({menu});
+        db.collection(this.props.login.uid).doc('shopping-list').set({shoppingList});
+        
+        this.setState({
+            redirect: true
+        })
+    }
+
+    toggleMenuList = () => {
+        this.setState({
+            menuList: !this.state.menuList,
+            headerMenu: !this.state.headerMenu
+        });
+    }
    
     render() {
+        if (this.state.redirect) return (<Redirect to="/" />);
+
         let categoryColor = this.state.selectedCategory.color;
+        let headerMenuDisplay = this.state.headerMenu ? "flex" : "none";
 
         return (
            <div className="wrapper">
-                <div className="category__header header" style={{backgroundColor: categoryColor}} >
-                <div className="category__header-left-menu">
+                <div className="menu__header header" style={{backgroundColor: categoryColor}} >
+                <div className="menu__header-left-menu">
                      <Link 
                         className="back-btn" 
                         to="/"
                     />
                 </div>
-                <div className="category__header-right-menu">
-                    <div className="category__header-menu-btn dots-menu-btn" onClick={this.toggleHeaderMenu}></div>
+                <div className="menu__header-right-menu">
+                    <div className="menu__header-menu-btn dots-menu-btn" onClick={this.toggleHeaderMenu}></div>
                 </div>
             </div>
-            <div className="category__body">
-                <div className="category__title">
-                    <div className="category__selected">
-                        <div className="category__selected-icon" style={this.drawCategoryIcon(this.state.selectedCategory)}></div>
-                        <div className="category__selected-title" style={{color: categoryColor}}>{this.state.selectedCategory.name}</div>
+            <div className="menu__body">
+                <div className="menu__title">
+                    <div className="menu__selected">
+                        <div className="menu__selected-icon" style={this.drawCategoryIcon(this.state.selectedCategory)}></div>
+                        <div className="menu__selected-title" style={{color: categoryColor}}>{this.state.selectedCategory.name}</div>
                     </div>
-                    <div className="category__items-count-wrapper">
-                        <div className="category__items-count" style={{backgroundColor: categoryColor}}>{this.correctlyWrite(this.state.selectedCategoryRecipes.length)}</div>
+                    <div className="menu__items-count-wrapper">
+                        <div className="menu__items-count" style={{backgroundColor: categoryColor}}>{this.correctlyWrite(this.state.selectedCategoryRecipes.length)}</div>
                     </div>
                 </div>
-                <MenuList 
-                    recipes={this.state.selectedCategoryRecipes}
-                    categories={this.state.selectedCategoriesList}
+                <MenuBody 
+                    menuRecipes={this.state.selectedCategoryRecipes}
+                    menuCategories={this.state.selectedCategoriesList}
+                    menuList={this.state.menuList}
+                    uid={this.props.login.uid}
+                    shoppingList={this.props.shoppingList}
                 />
             </div>
+            <HeaderMenu 
+                headerMenuDisplay={headerMenuDisplay}
+                toggleHeaderMenu={this.toggleHeaderMenu}
+                deleteMenu={this.deleteMenu}
+                toggleMenuList={this.toggleMenuList}
+                menuList={this.state.menuList}
+            />
         </div>
         );
     }

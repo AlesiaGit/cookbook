@@ -47,10 +47,13 @@ class Recipe extends Component {
             });
         } else {
     		this.setState({
-                selectedCategory: this.props.categories.array.filter(elem => elem.id === this.state.recipe.category)[0],
-                recipeIngredients: this.state.recipe.ingredients === '' ? [] : this.state.recipe.ingredients, //firebase
-            }, () => document.querySelector('meta[name=theme-color]').setAttribute('content', this.state.selectedCategory.color));
+                selectedCategory: this.props.categories.array.filter(elem => elem.id === this.state.recipe.category)[0]
+            }, () => this.setStatusBarColor(this.state.selectedCategory.color));
         }  
+    }
+
+    setStatusBarColor = (color) => {
+        document.querySelector('meta[name=theme-color]').setAttribute('content', color);
     }
 
     addStyle = item => {
@@ -79,27 +82,23 @@ class Recipe extends Component {
     	});
     	store.dispatch(deleteRecipe(recipes));
         firebaseApp.firestore().collection(this.props.login.uid).doc('recipes').set({recipes});
-    	//asyncLocalStorage.setItem('recipes', recipes);
 
     	let remainingRecipesIndices = recipes.map(elem => elem = elem.id);
         let menu = this.props.menu.array.filter(elem => remainingRecipesIndices.indexOf(elem) !== -1);
         store.dispatch(deleteFromMenu(menu));
         firebaseApp.firestore().collection(this.props.login.uid).doc('menu').set({menu});
-        //asyncLocalStorage.setItem('menu', remainingMenu);
     }
 
     handleRecipeMenuToggle = () => {
         if (!this.state.isInMenu) {
             let menu = this.props.menu.array;
             menu.push(this.state.recipe.id);
-            //asyncLocalStorage.setItem('menu', array);
             store.dispatch(addToMenu(menu));
             firebaseApp.firestore().collection(this.props.login.uid).doc('menu').set({menu});
             return;
         }
 
         let menu = this.props.menu.array.filter(elem => elem !== this.state.recipe.id);
-        //asyncLocalStorage.setItem('menu', array);
         store.dispatch(deleteFromMenu(menu));
         firebaseApp.firestore().collection(this.props.login.uid).doc('menu').set({menu});
     }
@@ -143,7 +142,7 @@ class Recipe extends Component {
 				<div className="recipe__block-wrapper">
 					<div className="recipe__block-title" style={{color: this.state.selectedCategory.color}}>Ингредиенты</div>
 					<ul className="recipe__block-list">
-						{this.state.recipeIngredients.map((elem, index) => (
+						{this.state.recipe.ingredients.map((elem, index) => (
 							<li key={index}>{elem.ingredientName} - {elem.ingredientQuantity} {elem.ingredientUnits}</li>
 						))}
 					</ul>

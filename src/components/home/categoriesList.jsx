@@ -1,20 +1,71 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import { connect } from "react-redux";
+import Sortable from "sortablejs";
 //import PropTypes from "prop-types";
 
 //components
 import CategoryItemMenu from "./categoryItemMenu";
 
+//utils
+import { db } from "../../utils/firebase";
+
+//store
+import store from "../../store/store";
+import { addCategory } from "../../ducks/categories";
+
 const mapStateToProps = state => {
     return {
-        categories: state.categories
+        categories: state.categories,
+        login: state.login
     };
 };
 
 class CategoriesList extends Component {
-    state = {
-        display: this.props.categories.array.map(elem => false),
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            display: this.props.categories.array.map(elem => false),
+            categoriesFromDom: this.props.categories.array
+        }
+    }
+    
+
+    componentDidMount = () => {
+        Sortable.create(this.sortable, {
+            onEnd: (evt) => {
+                let children = evt.to.childNodes;
+                let categories = [];
+
+                for (var i = 0; i < children.length; i++) {
+                    for (var j = 0; j < this.props.categories.array.length; j++) {
+                        if (this.props.categories.array[j].id === children[i].id) {
+                            categories.push(this.props.categories.array[j]);
+                        }
+                    }
+                }
+
+                this.setState({
+                    categoriesFromDom: categories,
+                })
+            }
+        })
+    }
+
+    componentWillReceiveProps = (nextProps) => {
+        if (this.state.categoriesFromDom !== nextProps.categories.array) {
+            this.setState({
+                categoriesFromDom: nextProps.categories.array,
+                display: nextProps.categories.array.map(elem => false)
+            })
+        }
+    }
+
+    componentWillUnmount = () => {
+        let categories = this.state.categoriesFromDom;
+        store.dispatch(addCategory(categories));
+        db.collection(this.props.login.uid).doc('categories').set({categories});
     }
 
     toggle = (event) => {
@@ -27,15 +78,20 @@ class CategoriesList extends Component {
             position: {
                 top: event.clientY + 'px',
                 left: event.clientX + 'px'
-            }
+            },
         });
     }
 
     render() {
         return (
-            <div>
+            <div ref={sortable => this.sortable = sortable} >
             {this.props.categories.array.map((item, index) => (
-                <div className="drawer__category-wrapper" key={index} style={{backgroundColor: (item === this.props.selectedCategory) ? "#f0f0f0" : "#ffffff"}}>
+                <div 
+                    className="drawer__category-wrapper" 
+                    key={index} 
+                    id={item.id}
+                    style={{backgroundColor: (item === this.props.selectedCategory) ? "#f0f0f0" : "#ffffff"}}
+                    >
                     <div className={(item === this.props.selectedCategory) ? "drawer__drag-icon white" : "drawer__drag-icon grey"}></div>
                     <div className="drawer__left" >
                         <Link className="drawer__category-info" to={"/category/" + item.id} onClick={() => this.props.toggleDrawer()}>
@@ -53,6 +109,7 @@ class CategoriesList extends Component {
                                 position={this.state.position}
                                 deleteCategory={this.props.deleteCategory} 
                                 toggle={this.toggle}
+                                categoriesFromDom={this.state.categoriesFromDom}
                             />
                         </div>                           
                     </div>

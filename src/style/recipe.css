@@ -212,8 +212,13 @@ body {
 
 .recipe__block-wrapper {
 	background-color: #ffffff;
-    margin: calc(1.5vh + 1.5vw);
     border: calc(0.1vh + 0.1vw) solid #dfdfdf;
+    margin: calc(1vh + 1vw);
+    margin-bottom: 0;
+}
+
+.recipe__block-wrapper:last-child {
+    margin-bottom: calc(1vh + 1vw);
 }
 
 .recipe__block-title {

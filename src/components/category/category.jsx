@@ -40,12 +40,16 @@ class Category extends Component {
             id: this.props.location.pathname.split("/category/").pop(),
             selectedCategory: this.props.categories.array.filter(elem => elem.id === this.props.location.pathname.split("/category/").pop())[0],
             selectedCategoryRecipes: this.props.recipes.array.filter(elem => elem.category === this.props.location.pathname.split("/category/").pop()),
-            redirect: false
+            redirect: false,
+            redirectTo: '/'
         };
     }
 
     componentWillMount = () => {
-        if (!this.state.selectedCategory) return this.setState({redirect: true});
+        if (!this.state.selectedCategory) return this.setState({
+            redirect: true,
+            redirectTo: '/'
+        });
         this.setState({
             ratio: window.innerWidth/window.innerHeight
         });
@@ -112,27 +116,40 @@ class Category extends Component {
         return number + " рецептов";
     }
 
-    deleteCategory = (category) => {
-        let categories = this.state.categories.filter(elem => elem !== category);
-        let recipes = this.state.recipes.filter(elem => elem.category !== category.id);
+    deleteCategory = (category, array) => {
+        let categories = array.filter(elem => elem.id !== category.id);
+        let recipes = this.props.recipes.array.filter(elem => elem.category !== category.id);
 
         let remainingRecipesIndices = recipes.map(elem => elem = elem.id);
         let menu = this.props.menu.array.filter(elem => remainingRecipesIndices.indexOf(elem) !== -1);
 
-        this.setState({
-            categories: categories,
-            recipes: recipes,
-            headerMenu: false,
-            drawer: false
-        });
+        Promise.resolve()
+        .then(() => {
+            firebaseApp.firestore().collection(this.props.login.uid).doc('recipes').set({recipes});
+            firebaseApp.firestore().collection(this.props.login.uid).doc('categories').set({categories});
+            firebaseApp.firestore().collection(this.props.login.uid).doc('menu').set({menu});
 
-        firebaseApp.firestore().collection(this.props.login.uid).doc('recipes').set({recipes});
-        firebaseApp.firestore().collection(this.props.login.uid).doc('categories').set({categories});
-        firebaseApp.firestore().collection(this.props.login.uid).doc('menu').set({menu});
-
-        store.dispatch(deleteRecipe(recipes));
-        store.dispatch(deleteCategory(categories));
-        store.dispatch(deleteFromMenu(menu));
+            store.dispatch(deleteRecipe(recipes));
+            store.dispatch(deleteCategory(categories));
+            store.dispatch(deleteFromMenu(menu));
+        })
+        .then(() => {
+            if (category.id === this.state.selectedCategory.id) {
+                this.setState({
+                    redirect: true,
+                    redirectTo: "/"
+                });
+            } else {
+                this.setState({
+                    categories: categories,
+                    recipes: recipes,
+                    headerMenu: false,
+                    selectedCategory: categories.filter(elem => elem.id === this.state.id)[0],
+                    selectedCategoryRecipes: recipes.filter(elem => elem.category === this.state.id),
+                    redirect: false
+                })
+            }
+        })      
     }
 
     handleInput = (event) => {
@@ -153,7 +170,7 @@ class Category extends Component {
     
 
     render() {
-        if (this.state.redirect) return (<Redirect to="/" />);
+        if (this.state.redirect) return (<Redirect to={this.state.redirectTo} />);
 
         let categoryColor = this.state.selectedCategory.color;
         let drawerVisibility = this.state.drawer ? "flex" : "none";
@@ -169,7 +186,6 @@ class Category extends Component {
                 <div className="category__header-right-menu">
                     <input 
                         onFocus={this.preventWindowFromResize} 
-                        onBlur={this.resetInput}
                         className="category__header-search-field" 
                         onChange={this.handleInput} 
                         value={this.state.value} 
@@ -213,7 +229,6 @@ class Category extends Component {
 			<Drawer 
                 id={this.state.id}
 				drawerDisplay={drawerVisibility}
-				categories={this.state.categories} 
 				toggleDrawer={this.toggleDrawer}
 				handleCategoryChange={this.handleCategoryChange}
 				drawCategoryIcon={this.drawCategoryIcon} 

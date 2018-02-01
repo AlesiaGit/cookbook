@@ -6,44 +6,22 @@ import { Link } from "react-router-dom";
 
 class CategoryItemMenu extends Component {
     render() {
-        if (this.props.category.id === this.props.id) {
-            return (
+        return (
+            <div 
+                className="drawer__header-overlay-menu" 
+                style={this.props.position}>
                 <div 
-                    className="drawer__header-overlay-menu" 
-                    style={this.props.position}>
-                    <Link 
-                        to="/" 
-                        className="drawer__header-overlay-menu-item" 
-                        onClick={() => this.props.deleteCategory(this.props.category)}>
-                        Удалить
-                    </Link>
-                    <Link 
-                        to={"/change-category/" + this.props.category.id}
-                        className="drawer__header-overlay-menu-item">
-                        Изменить
-                    </Link>
+                    className="drawer__header-overlay-menu-item" 
+                    onClick={() => this.props.deleteCategory(this.props.category, this.props.categoriesFromDom)}>
+                    Удалить
                 </div>
-            )
-        } else {
-            return (
-                <div 
-                    className="drawer__header-overlay-menu" 
-                    style={this.props.position}>
-                    <Link 
-                        to={"/category/" + this.props.id}
-                        className="drawer__header-overlay-menu-item" 
-                        onClick={() => this.props.deleteCategory(this.props.category)}>
-                        Удалить
-                    </Link>
-                    <Link 
-                        to={"/change-category/" + this.props.category.id}
-                        className="drawer__header-overlay-menu-item"
-                        >
-                        Изменить
-                    </Link>
-                </div>
-            );
-        }
+                <Link 
+                    to={"/change-category/" + this.props.category.id}
+                    className="drawer__header-overlay-menu-item">
+                    Изменить
+                </Link>
+            </div>
+        )
     }
 }
 

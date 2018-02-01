@@ -103,6 +103,11 @@ body {
     border-bottom: 1px solid #ffffff;
 }
 
+.category__scroll {
+    max-height: 91vh;
+    overflow: scroll;
+}
+
 .dots-menu-btn {
     background-image: url('../img/icons/dots-menu.png');
 }
@@ -149,6 +154,8 @@ body {
     z-index: 1;
     flex-direction: column;
     box-shadow: 2px 3px 20px rgba(0, 0, 0, 0.3);
+    max-height: 91vh;
+    overflow: scroll;
 }
 
 .drawer__category-wrapper {
@@ -353,7 +360,7 @@ body {
 	display: flex;
 	flex-direction: column;
 	justify-content: flex-end;
-	margin: 3%;
+	margin: calc(1vh + 1vw);
 	margin-bottom: 0;
 	-webkit-appearance: none;
 	border: 0;
@@ -363,6 +370,7 @@ body {
     text-decoration: none;
     color: #404040;
     position: relative;
+
 }
 
 .category__list-item:first-child {
@@ -410,6 +418,8 @@ body {
     background-repeat: no-repeat;
     background-position: 50%;
     background-size: cover;
+    border: calc(0.05vh + 0.05vw) solid #c4c4c4;
+    border-bottom: 0;
 }
 
 .category__add-recipe-btn {

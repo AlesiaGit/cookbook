@@ -78,25 +78,23 @@ class AddCategory extends Component {
     saveCategory = () => {
         let categories = this.props.categories.array;
         let newCategory = {
+        	color: this.state.categoryColor,
+        	icon: this.state.categoryIcon,
             id: this.state.categoryId,
-            icon: this.state.categoryIcon,
-            name: this.state.categoryName,
-            color: this.state.categoryColor
+            name: this.state.categoryName
         };
         categories.push(newCategory);
         store.dispatch(addCategory(categories));
         firebaseApp.firestore().collection(this.props.login.uid).doc('categories').set({categories});
-        // asyncLocalStorage.setItem('categories', categories);
 
 
         if (this.state.fromRecipe) {
             let targetRecipe = this.props.recipes.array.filter(elem => elem.id === this.state.fromRecipe)[0];
             targetRecipe.category = newCategory.id;
             
-            let recipes = this.props.recipes.array.map(elem => elem.id !== this.state.fromRecipe ? targetRecipe : elem);
+            let recipes = this.props.recipes.array.map(elem => elem.id === this.state.fromRecipe ? targetRecipe : elem);
             store.dispatch(addRecipe(recipes));
             firebaseApp.firestore().collection(this.props.login.uid).doc('recipes').set({recipes});
-            //asyncLocalStorage.setItem('recipes', recipes);
         }
     }
 

@@ -7,10 +7,10 @@ export const MENU_RESET = "cookbook/menu/MENU_RESET";
 
 
 // Reducer
-let menuArray = JSON.parse(localStorage.getItem('menu')) || [];
+//let menuArray = JSON.parse(localStorage.getItem('menu')) || [];
 
 let initialState = {
-    array: menuArray
+    array: []
 };
 
 export default function menu(state = initialState, action) {

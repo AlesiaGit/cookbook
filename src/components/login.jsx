@@ -1,10 +1,12 @@
 import React, { Component } from "react";
 import { Redirect } from "react-router-dom";
 import { connect } from "react-redux";
+import ReactSpinner from 'react16-spinjs';
 
-import firebaseApp from "../utils/firebase";
-import 'firebase/firestore';
+//utils
+import { auth } from "../utils/firebase";
 
+//store
 import store from "../store/store";
 import { userLoggedIn, userLoggedOut } from "../ducks/login";
 
@@ -23,7 +25,12 @@ class Login extends Component {
         this.state = {
             email: '',
             password: '',
-            db: firebaseApp.firestore()
+            spinner: false,
+            passwordError: false,
+            emailError: false,
+            passwordErrorMessage: '',
+            emailErrorMessage: '',
+            pressed: false
         };
     }
 
@@ -32,7 +39,7 @@ class Login extends Component {
             ratio: window.innerWidth/window.innerHeight
         });
 
-    	this.removeListener = firebaseApp.auth().onAuthStateChanged(user => {
+       	this.removeListener = auth.onAuthStateChanged(user => {
 	  		if (user) {
                 Promise.resolve(store.dispatch(userLoggedIn(user.uid))).then(data => {
                     localStorage.setItem('uid', data.uid);
@@ -76,26 +83,84 @@ class Login extends Component {
     }
 
     signUpNewUser = () => {
-    	firebaseApp.auth().createUserWithEmailAndPassword(this.state.email, this.state.password);
+        this.setState({
+            spinner: true
+        })
+    	auth.createUserWithEmailAndPassword(this.state.email, this.state.password)
+        .then(() => { 
+            this.setState({
+                spinner: false
+            })
+        })
+        .catch(error  => {
+            console.log(error.code);
+            if (error.code === "auth/email-already-in-use") {
+                this.setState({
+                    email: '',
+                    //password: '',
+                    emailError: true,
+                    emailErrorMessage: "Такой пользователь уже существует"
+                });
+            }
+
+            if (error.code === "auth/invalid-email") {
+                this.setState({
+                    email: '',
+                    //password: '',
+                    emailError: true,
+                    emailErrorMessage: "Неверный формат адреса"
+                })
+            }
+
+            if (error.code === "auth/weak-password") {
+                this.setState({
+                    //email: '',
+                    password: '',
+                    passwordError: true,
+                    passwordErrorMessage: "Слабый пароль"
+                })
+            }
+        });
 	}
 
     logInExistingUser = () => {
-	  	firebaseApp.auth().signInWithEmailAndPassword(this.state.email, this.state.password).catch(error => {
-	  		if (error.code === "auth/user-not-found") {
-                this.setState({
+        this.setState({
+            spinner: true
+        })
+	  	auth.signInWithEmailAndPassword(this.state.email, this.state.password)
+        .then(() => { 
+            this.setState({
+                spinner: false
+            })
+        })
+        .catch(error => {
+            console.log(error.code);
+            if (error.code === "auth/user-not-found") {
+                return this.setState({
                     email: '',
                     password: '',
-                }, () => console.log('нету такого пользователя. зарегайтесь'))
+                    emailError: true,
+                    emailErrorMessage: "Такого пользователя не существует"
+                })
             }
-	  	});
+
+            if (error.code === "auth/wrong-password") {
+                return this.setState({
+                    email: '',
+                    password: '',
+                    passwordError: true,
+                    passwordErrorMessage: "Неверный пароль"
+                })
+            }
+        });
 	}
 
     logOutExistingUser = () => {
-    	firebaseApp.auth().signOut();
+    	auth.signOut();
     }
 
     resetPassword = () => {
-    	firebaseApp.auth().sendPasswordResetEmail(this.state.email);
+    	auth.sendPasswordResetEmail(this.state.email);
     }
 
     render () {
@@ -103,6 +168,9 @@ class Login extends Component {
 
     	let login = this.state.login ? "block" : "none";
     	let logout = this.state.logout ? "block" : "none";
+        let spinner = this.state.spinner ? "block" : "none";
+        let emailError = this.state.emailError ? "visible" : "hidden";
+        let passwordError = this.state.passwordError ? "visible" : "hidden";
 
     	return (
     		<div className="login__wrapper">
@@ -125,6 +193,7 @@ class Login extends Component {
                         style={{display: login}}
                         onFocus={this.preventWindowFromResize} 
                     />
+                    <div className="error" style={{visibility: emailError}}>{this.state.emailErrorMessage}</div>
         			<input 
                         className="login__input" 
                         type="text" 
@@ -139,10 +208,23 @@ class Login extends Component {
                         style={{display: login}}
                         onFocus={this.preventWindowFromResize} 
                     />
-        			<div className="login__new-user" onClick={this.signUpNewUser}>зарегистрироваться</div>
-        			<div className="login__existing-user" onClick={this.logInExistingUser} style={{display: login}}>Уже зарегистрированы? Войти</div>
+                    <div className="error" style={{visibility: passwordError}}>{this.state.passwordErrorMessage}</div>
+        			<button 
+                        className="login__new-user" 
+                        onClick={this.signUpNewUser}>
+                        зарегистрироваться
+                    </button>
+        			<div 
+                        className="login__existing-user" 
+                        onClick={this.logInExistingUser} 
+                        style={{display: login}}>
+                        Уже зарегистрированы? Войти
+                    </div>
         			<button onClick={this.logOutExistingUser} style={{display: logout}}>logout user</button>
         			{/*<button onClick={this.resetPassword}>forgot password?</button>*/}
+                    <div className="spinner-wrapper" style={{display: spinner}} >
+                        <ReactSpinner config={{scale: 1.5, width: 4, color: "ffffff"}}/>
+                    </div>
                 </div>
     		</div>
     	)
