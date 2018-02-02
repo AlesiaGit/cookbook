@@ -35,8 +35,6 @@ class CategoriesList extends Component {
             item: '',
             categoriesFromDom: this.props.categories.array
         }
-
-        console.log(this.props.categories.array);
     }
 
     componentWillReceiveProps = (nextProps) => {

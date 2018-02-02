@@ -118,7 +118,6 @@ class RecipesList extends Component {
         if (recipe && this.state.menu.indexOf(recipe.id) === -1) {
             let menu = this.state.menu;
             menu.push(recipe.id);
-            //asyncLocalStorage.setItem('menu', array);
             store.dispatch(addToMenu(menu));
             firebaseApp.firestore().collection(this.props.login.uid).doc('menu').set({menu});
             return;
@@ -126,7 +125,6 @@ class RecipesList extends Component {
 
         if (recipe && this.state.menu.indexOf(recipe.id) !== -1) {
             let menu = this.state.menu.filter(elem => elem !== recipe.id);
-            //asyncLocalStorage.setItem('menu', array);
             store.dispatch(deleteFromMenu(menu));
             firebaseApp.firestore().collection(this.props.login.uid).doc('menu').set({menu});
             return;

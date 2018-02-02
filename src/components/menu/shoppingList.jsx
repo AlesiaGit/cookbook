@@ -14,13 +14,13 @@ import store from "../../store/store";
 //import { deleteFromMenu } from "../../ducks/menu";
 import { shoppingListCreated } from "../../ducks/shopping-list";
 
-/*const mapStateToProps = state => {
-    return {
-        menu: state.menu,
-        login: state.login,
-        shoppingList: state.shoppingList
-    };
-};*/
+// const mapStateToProps = state => {
+//     return {
+//         //menu: state.menu,
+//         //login: state.login,
+//         //shoppingList: state.shoppingList
+//     };
+// };
 
 class ShoppingList extends Component {
 	constructor(props) {
@@ -32,11 +32,14 @@ class ShoppingList extends Component {
             view: 'list'
 	    }
 
+        console.log(this.props);
+
 	}
 
     componentWillMount = () => {
         let a = this.props.menuRecipes.map(elem => elem = elem.id);
         let b = this.props.shoppingList.recipes;
+
         let result = this.checkArrays(a, b);
         if (this.props.shoppingList.recipes.length === 0 || !result) {
             let concat = [];
@@ -71,6 +74,11 @@ class ShoppingList extends Component {
         }
     }
 
+    componentWillReceiveProps = (nextProps) => {
+        let next = nextProps.menuRecipes.map(elem => elem = elem.ingredients);
+        console.log(this.checkArrays(this.state.ingredients, next));
+    }
+
     componentWillUnmount = () => {
         let shoppingList = {
             recipes: this.props.menuRecipes.map(elem => elem = elem.id),
@@ -86,7 +94,6 @@ class ShoppingList extends Component {
         for (var i = 0; i < a.length; i++) {
             if (a[i] !== b[i]) return false;
         }
-
         return true;
     }
 

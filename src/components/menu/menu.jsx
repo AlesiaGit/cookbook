@@ -61,7 +61,22 @@ class Menu extends Component {
                 selectedCategoriesList: this.props.categories.array.filter(elem => array.map(elem => elem = elem.category).indexOf(elem.id) !== -1)
             });
         }
+
+        // let current = this.props.recipes.array.filter(elem => this.props.menu.array.indexOf(elem.id) !== -1);
+        // let next = nextProps.recipes.array.filter(elem => nextProps.menu.array.indexOf(elem.id) !== -1);
+        // console.log(current);
+        // console.log(next)
+        // console.log(this.checkArrays(current, next));
     }
+
+    //  checkArrays = (a, b) => {
+    //     if (a.length !== b.length) return false;
+
+    //     for (var i = 0; i < a.length; i++) {
+    //         if (a[i] !== b[i]) return false;
+    //     }
+    //     return true;
+    // }
 
     setStatusBarColor = (color) => {
         document.querySelector('meta[name=theme-color]').setAttribute('content', color);

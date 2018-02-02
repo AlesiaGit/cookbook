@@ -19,7 +19,8 @@ const mapStateToProps = state => {
     return {
          recipes: state.recipes,
          categories: state.categories,
-         login: state.login
+         login: state.login,
+         menu: state.menu
     };
 };
 
@@ -153,10 +154,13 @@ class ChangeRecipe extends Component {
             ingredientUnits: this.state.ingredientUnits,
         };
 
+        let initialIngredients = this.state.recipeIngredients.slice();
+
         let ingredients = this.state.recipeIngredients;
         ingredients.push(ingredient);
 
         this.setState({
+            initialIngredients: initialIngredients,
             recipeIngredients: ingredients,
             ingredientName: '',
             ingredientQuantity: '',
@@ -201,6 +205,13 @@ class ChangeRecipe extends Component {
         recipes.push(updatedRecipe);
         store.dispatch(addRecipe(recipes));
         db.collection(this.props.login.uid).doc('recipes').set({recipes});
+
+       
+        // if (this.props.menu.array.indexOf(this.state.recipeId) !== -1 && this.state.initialIngredients !== this.state.recipeIngredients) {
+        //     let menu = this.props.menu.array;
+        //     store.dispatch(addToMenu(menu));
+        //     firebaseApp.firestore().collection(this.props.login.uid).doc('menu').set({menu});
+        // }
     }
 
     handleCategoryChange = (category) => {
