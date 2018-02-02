@@ -2,9 +2,9 @@ import React from "react";
 
 const IngredientsList = (props) => {
     return (
-        <li className="add-recipe__added-ingredient-item">
+        <div className="add-recipe__added-ingredient-item">
             {props.recipeIngredients.map((elem, index) => (
-                <div key={index}>
+                <div key={index} onClick={() => props.changeIngredient(index)}>
                     <span className="ingredient-item-name">{elem.ingredientName}</span>
                     <span> - </span>
                     <span className="ingredient-item-quantity">{elem.ingredientQuantity}</span>
@@ -12,7 +12,7 @@ const IngredientsList = (props) => {
                     <span className="ingredient-item-unit">{elem.ingredientUnits}</span>
                 </div>
             ))}
-        </li> 
+        </div> 
     )
 }
 

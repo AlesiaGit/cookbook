@@ -164,6 +164,15 @@ class ChangeRecipe extends Component {
         });
     }
 
+    cancelIngredient = () => {
+        this.setState({
+            recipeIngredients: this.state.recipeIngredients,
+            ingredientName: '',
+            ingredientQuantity: '',
+            ingredientUnits: 'мл'
+        });
+    }
+
     saveRecipe = () => {
         let hours = this.state.recipeCookHours === '' ? "0" : this.state.recipeCookHours;
         let minutes = this.state.recipeCookMinutes === '' ? '00' : this.state.recipeCookMinutes;
@@ -200,6 +209,17 @@ class ChangeRecipe extends Component {
         });
 
         this.setStatusBarColor(category.color);
+    }
+
+    changeIngredient = (i) => {
+        let remaining = this.state.recipeIngredients.slice();
+        let target = remaining.splice(i, 1)[0];
+        this.setState({
+            recipeIngredients: remaining,
+            ingredientName: target.ingredientName,
+            ingredientQuantity: target.ingredientQuantity,
+            ingredientUnits: target.ingredientUnits
+        });
     }
 
     render() {
@@ -319,12 +339,16 @@ class ChangeRecipe extends Component {
                                     onClick={this.addIngredient} 
                                     style={{backgroundColor: this.state.selectedCategory.color}}>
                                 </div>
-                                <div className="change-recipe__delete-ingredient-btn"></div>
+                                <div 
+                                    className="change-recipe__delete-ingredient-btn"
+                                    onClick={this.cancelIngredient}>
+                                </div>
                             </div>
                         </div>
-                        <ul className="change-recipe__added-ingredients">
-                            <IngredientsList recipeIngredients={this.state.recipeIngredients} />
-                        </ul>
+                        <IngredientsList 
+                            recipeIngredients={this.state.recipeIngredients}
+                            changeIngredient={this.changeIngredient}
+                        />
                         <div className="change-recipe__subsections-wrapper">
                             <div className="change-recipe__subsection-ingredients">
                                 <div className="change-recipe__ingredient-input-wrapper">
@@ -337,7 +361,6 @@ class ChangeRecipe extends Component {
                                         name="ingredientName" 
                                         placeholder="например, 'яйца'" 
                                     />
-                                    <ul className="change-recipe__ingredient-hint-list"></ul>
                                 </div>  
                                     <span className="change-recipe__ingredient-divider">-</span>
                                     <input 
