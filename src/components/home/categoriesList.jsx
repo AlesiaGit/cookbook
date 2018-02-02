@@ -48,11 +48,12 @@ class CategoriesList extends Component {
     }
 
     toggleItemMenu = (x, y, item) => {
+        console.log(x, y);
         this.setState({
             display: !this.state.display,
             position: {
-                top: x + 'px',
-                left: y + 'px'
+                top: y + 'px',
+                left: x + 'px'
             },
             item: item
         });
@@ -87,7 +88,7 @@ class CategoriesList extends Component {
                             <Link 
                                 className="drawer__category-info" 
                                 to={"/category/" + item.id} 
-                                onClick={() => {console.log(item.name); this.props.toggleDrawer()}}>
+                                onClick={() => {this.props.toggleDrawer()}}>
                                 <div className="drawer__category-icon" style={this.props.drawCategoryIcon(item)}></div>
                                 <div className="drawer__category-data">
                                     <div className="drawer__category-title">{item.name}</div>

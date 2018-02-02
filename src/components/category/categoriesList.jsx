@@ -53,8 +53,8 @@ class CategoriesList extends Component {
         this.setState({
             display: !this.state.display,
             position: {
-                top: x + 'px',
-                left: y + 'px'
+                top: y + 'px',
+                left: x + 'px'
             },
             item: item
         });
