@@ -30,6 +30,8 @@ class Category extends Component {
     constructor(props) {
         super(props);
 
+        let id = this.props.location.pathname.split("/category/").pop();
+
         this.state = {
             value: '',
             drawer: false,
@@ -37,12 +39,14 @@ class Category extends Component {
             headerMenu: false,
             categories: this.props.categories.array,
             recipes: this.props.recipes.array,
-            id: this.props.location.pathname.split("/category/").pop(),
-            selectedCategory: this.props.categories.array.filter(elem => elem.id === this.props.location.pathname.split("/category/").pop())[0],
-            selectedCategoryRecipes: this.props.recipes.array.filter(elem => elem.category === this.props.location.pathname.split("/category/").pop()),
+            id: id,
+            selectedCategory: this.props.categories.array.filter(elem => elem.id === id)[0],
+            selectedCategoryRecipes: this.props.recipes.array.filter(elem => elem.category === id),
             redirect: false,
             redirectTo: '/'
         };
+
+
     }
 
     componentWillMount = () => {
@@ -57,14 +61,15 @@ class Category extends Component {
     }
 
     componentWillReceiveProps = (nextProps) => {
-        if (this.state.id !== this.props.location.pathname.split("/category/").pop()) {
+        let id = nextProps.location.pathname.split("/category/").pop()
+        if (this.state.id !== id) {
             this.setState({
                 drawer: false,
                 startButton: true,
                 headerMenu: false,
-                id: this.props.location.pathname.split("/category/").pop(),
-                selectedCategory: this.props.categories.array.filter(elem => elem.id === this.props.location.pathname.split("/category/").pop())[0],
-                selectedCategoryRecipes: this.props.recipes.array.filter(elem => elem.category === this.props.location.pathname.split("/category/").pop())
+                id: id,
+                selectedCategory: this.props.categories.array.filter(elem => elem.id === id)[0],
+                selectedCategoryRecipes: this.props.recipes.array.filter(elem => elem.category === id)
             }, () => {
                 this.setStatusBarColor(this.state.selectedCategory.color);
             });
@@ -116,8 +121,8 @@ class Category extends Component {
         return number + " рецептов";
     }
 
-    deleteCategory = (category, array) => {
-        let categories = array.filter(elem => elem.id !== category.id);
+    deleteCategory = (category) => {
+        let categories = this.props.categories.array.filter(elem => elem.id !== category.id);
         let recipes = this.props.recipes.array.filter(elem => elem.category !== category.id);
 
         let remainingRecipesIndices = recipes.map(elem => elem = elem.id);

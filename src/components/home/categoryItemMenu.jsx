@@ -7,12 +7,16 @@ class CategoryItemMenu extends Component {
 
     render() {
         return (
-            <div 
+            <div  
                 className="drawer__header-overlay-menu" 
-                style={this.props.position}>
+                style={{
+                    display: this.props.display ? 'flex' : 'none',
+                    top: this.props.position.top,
+                    left: this.props.position.left
+                }}>
                 <div 
                     className="drawer__header-overlay-menu-item" 
-                    onClick={() => this.props.deleteCategory(this.props.category, this.props.categoriesFromDom)}>
+                    onClick={(event) => {this.props.deleteCategory(this.props.category)}}>
                     Удалить
                 </div>
                 <Link 

@@ -155,7 +155,7 @@ body {
     flex-direction: column;
     box-shadow: 2px 3px 20px rgba(0, 0, 0, 0.3);
     max-height: 91vh;
-    overflow: scroll;
+    /*overflow: scroll;*/
 }
 
 .drawer__category-wrapper {
@@ -281,9 +281,7 @@ body {
 }
 
 .drawer__header-overlay-menu {
-    position: fixed;
-    display: flex;
-    top: 20px;
+    position: absolute;
     transform: translate(-10%, -30%);
     flex-direction: column;
     background-color: #f0f0f0;

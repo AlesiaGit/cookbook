@@ -76,6 +76,11 @@ body {
     min-height: 91vh;
 }
 
+.category__scroll {
+    max-height: 91vh;
+    overflow: scroll;
+}
+
 .menu__title {
     height: 9vh;
     background-color: #ffffff;

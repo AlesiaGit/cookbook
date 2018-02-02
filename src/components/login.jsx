@@ -9,6 +9,10 @@ import { auth } from "../utils/firebase";
 //store
 import store from "../store/store";
 import { userLoggedIn, userLoggedOut } from "../ducks/login";
+import { deleteCategory } from "../ducks/categories";
+import { deleteRecipe } from "../ducks/recipes";
+import { resetMenu } from "../ducks/menu";
+import { shoppingListDeleted } from "../ducks/shopping-list";
 
 const mapStateToProps = state => {
     return {
@@ -46,13 +50,20 @@ class Login extends Component {
                     return this.setState({
                         redirect: true,
                         login: false,
-                        logout: true
+                        //logout: true
                     });
                 });
 	       	} else {
                 Promise.resolve(store.dispatch(userLoggedOut())).then(data => {
+                    let empty = [];
+                    store.dispatch(deleteRecipe(empty));
+                    store.dispatch(deleteCategory(empty));
+                    store.dispatch(resetMenu());
+                    store.dispatch(shoppingListDeleted());
                     localStorage.setItem('uid', data.uid);
-                    return this.setState({
+                    
+                }).then(() => {
+                    this.setState({
                         email: '',
                         password: '',
                         redirect: false,
@@ -167,7 +178,7 @@ class Login extends Component {
     	if (this.state.redirect) return (<Redirect to="/" />);
 
     	let login = this.state.login ? "block" : "none";
-    	let logout = this.state.logout ? "block" : "none";
+    	//let logout = this.state.logout ? "block" : "none";
         let spinner = this.state.spinner ? "block" : "none";
         let emailError = this.state.emailError ? "visible" : "hidden";
         let passwordError = this.state.passwordError ? "visible" : "hidden";
@@ -220,7 +231,6 @@ class Login extends Component {
                         style={{display: login}}>
                         Уже зарегистрированы? Войти
                     </div>
-        			<button onClick={this.logOutExistingUser} style={{display: logout}}>logout user</button>
         			{/*<button onClick={this.resetPassword}>forgot password?</button>*/}
                     <div className="spinner-wrapper" style={{display: spinner}} >
                         <ReactSpinner config={{scale: 1.5, width: 4, color: "ffffff"}}/>

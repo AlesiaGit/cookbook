@@ -43,7 +43,7 @@ const Drawer = props => {
                             to={"/add-category/c" + Date.now()}
                          />
                     </div>
-                    <CategoriesList 
+                     <CategoriesList 
                         id={props.id}
                         drawerDisplay={props.drawerDisplay}
                         drawCategoryIcon={props.drawCategoryIcon} 

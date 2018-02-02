@@ -149,23 +149,25 @@ class Menu extends Component {
                     <div className="menu__header-menu-btn dots-menu-btn" onClick={this.toggleHeaderMenu}></div>
                 </div>
             </div>
-            <div className="menu__body">
-                <div className="menu__title">
-                    <div className="menu__selected">
-                        <div className="menu__selected-icon" style={this.drawCategoryIcon(this.state.selectedCategory)}></div>
-                        <div className="menu__selected-title" style={{color: categoryColor}}>{this.state.selectedCategory.name}</div>
+            <div className="menu__scroll">
+                <div className="menu__body">
+                    <div className="menu__title">
+                        <div className="menu__selected">
+                            <div className="menu__selected-icon" style={this.drawCategoryIcon(this.state.selectedCategory)}></div>
+                            <div className="menu__selected-title" style={{color: categoryColor}}>{this.state.selectedCategory.name}</div>
+                        </div>
+                        <div className="menu__items-count-wrapper">
+                            <div className="menu__items-count" style={{backgroundColor: categoryColor}}>{this.correctlyWrite(this.state.selectedCategoryRecipes.length)}</div>
+                        </div>
                     </div>
-                    <div className="menu__items-count-wrapper">
-                        <div className="menu__items-count" style={{backgroundColor: categoryColor}}>{this.correctlyWrite(this.state.selectedCategoryRecipes.length)}</div>
-                    </div>
+                    <MenuBody 
+                        menuRecipes={this.state.selectedCategoryRecipes}
+                        menuCategories={this.state.selectedCategoriesList}
+                        menuList={this.state.menuList}
+                        uid={this.props.login.uid}
+                        shoppingList={this.props.shoppingList}
+                    />
                 </div>
-                <MenuBody 
-                    menuRecipes={this.state.selectedCategoryRecipes}
-                    menuCategories={this.state.selectedCategoriesList}
-                    menuList={this.state.menuList}
-                    uid={this.props.login.uid}
-                    shoppingList={this.props.shoppingList}
-                />
             </div>
             <HeaderMenu 
                 headerMenuDisplay={headerMenuDisplay}

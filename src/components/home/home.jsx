@@ -166,8 +166,9 @@ class Home extends Component {
         return number + " рецептов";
     }
 
-    deleteCategory = (category, array) => {
-        let categories = array.filter(elem => elem.id !== category.id);
+    deleteCategory = (category) => {
+        console.log('home', category);
+        let categories = this.props.categories.array.filter(elem => elem.id !== category.id);
         let recipes = this.props.recipes.array.filter(elem => elem.category !== category.id);
 
         let remainingRecipesIndices = recipes.map(elem => elem = elem.id);
