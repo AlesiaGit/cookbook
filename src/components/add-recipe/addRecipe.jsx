@@ -16,7 +16,6 @@ import { db } from "../../utils/firebase";
 //store
 import store from "../../store/store";
 import { addRecipe, deleteRecipe } from "../../ducks/recipes";
-import { deleteFromMenu } from "../../ducks/menu";
 
 const mapStateToProps = state => {
     return {
@@ -233,11 +232,6 @@ class AddRecipe extends Component {
         let recipes = this.props.recipes.filter(elem => elem.id !== this.state.recipeId);
         store.dispatch(deleteRecipe(recipes));
         db.collection(this.props.login.uid).doc('recipes').set({recipes});
-
-        let remainingRecipesIndices = recipes.map(elem => elem = elem.id);
-        let menu = this.props.menu.array.filter(elem => remainingRecipesIndices.indexOf(elem) !== -1);
-        store.dispatch(deleteFromMenu(menu));
-        db.collection(this.props.login.uid).doc('menu').set({menu});
     }
 
     handleCategoryChange = (category) => {

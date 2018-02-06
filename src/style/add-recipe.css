@@ -414,31 +414,7 @@ body {
 	border: 0;
 	border-bottom: 0.2vh solid #404040;
 	outline: none;
-	text-indent: 3vw;
-}
-
-.add-recipe__ingredient-hint-list {
-	position: absolute;
-    bottom: -3vh;
-    left: 0;
-    right: 0;
-    margin: 0;
-    padding: 0;
-}
-
-.add-recipe__ingredient-hint-item {
-	height: 3vh;
-    list-style: none;
-    font-size: calc(1.2vh + 1.2vw);
-    color: #e7989e;
-    font-style: italic;
-    background-color: #ffffff;
-    text-indent: 3vw;
-    line-height: 3vh;
-}
-
-.add-recipe__ingredient-hint-item:first-child {
-	border-top: 0.2vh solid #404040;
+	text-indent: 1vw;
 }
 
 .ingredient-quantity {
@@ -532,13 +508,14 @@ body {
 .add-recipe__added-ingredients {
 	margin: 0;
 	padding: 0;
-	margin-top: 2vh;
+	margin: 2vh 0;
 }
 
 .add-recipe__added-ingredient-item {
 	list-style: none;
-	font-size: calc(1.7vh + 1.7vw);
+    font-size: calc(1.8vh + 1.8vw);
     font-family: "Roboto Condensed", sans-serif;
+    margin: 0.8vh 0;
 }
 
 

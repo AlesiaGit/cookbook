@@ -13,15 +13,13 @@ import { db } from "../../utils/firebase";
 //store
 import store from "../../store/store";
 import { resetMenu } from "../../ducks/menu";
-import { shoppingListDeleted } from "../../ducks/shopping-list";
 
 const mapStateToProps = state => {
     return {
         recipes: state.recipes,
         categories: state.categories,
         menu: state.menu,
-        login: state.login,
-        shoppingList: state.shoppingList
+        login: state.login
     };
 };
 
@@ -34,7 +32,7 @@ class Menu extends Component {
             startButton: true,
             headerMenu: false,
             selectedCategory: settings.menuCategory,
-            selectedCategoryRecipes: this.props.recipes.array.filter(elem => this.props.menu.array.indexOf(elem.id) !== -1),
+            selectedCategoryRecipes: this.props.menu.recipes,
             redirect: false,
             menuList: true
         };
@@ -43,40 +41,22 @@ class Menu extends Component {
     componentWillMount = () => {
         if (this.props.categories.array.length === 0) return this.setState({ redirect: true });
 
-        let categories = this.state.selectedCategoryRecipes.map(elem => elem = elem.category);
+        let categories = this.props.menu.recipes.map(elem => elem = elem.category);
         this.setState({
             selectedCategoriesList: this.props.categories.array.filter(elem => categories.indexOf(elem.id) !== -1)
         })
 
         this.setStatusBarColor(this.state.selectedCategory.color);
-
-
     }
 
     componentWillReceiveProps = (nextProps) => {
         if (this.props.menu !== nextProps.menu) {
-            let array = this.props.recipes.array.filter(elem => nextProps.menu.array.indexOf(elem.id) !== -1);
             this.setState({
-                selectedCategoryRecipes: array,
-                selectedCategoriesList: this.props.categories.array.filter(elem => array.map(elem => elem = elem.category).indexOf(elem.id) !== -1)
+                selectedCategoryRecipes: nextProps.menu.recipes,
+                selectedCategoriesList: nextProps.categories.array.filter(elem => nextProps.menu.recipes.map(elem => elem = elem.category).indexOf(elem.id) !== -1)
             });
         }
-
-        // let current = this.props.recipes.array.filter(elem => this.props.menu.array.indexOf(elem.id) !== -1);
-        // let next = nextProps.recipes.array.filter(elem => nextProps.menu.array.indexOf(elem.id) !== -1);
-        // console.log(current);
-        // console.log(next)
-        // console.log(this.checkArrays(current, next));
     }
-
-    //  checkArrays = (a, b) => {
-    //     if (a.length !== b.length) return false;
-
-    //     for (var i = 0; i < a.length; i++) {
-    //         if (a[i] !== b[i]) return false;
-    //     }
-    //     return true;
-    // }
 
     setStatusBarColor = (color) => {
         document.querySelector('meta[name=theme-color]').setAttribute('content', color);
@@ -124,14 +104,13 @@ class Menu extends Component {
     }
 
     deleteMenu = () => {
-        let menu = [];
-        let shoppingList = [];
+        let menu = {
+            recipes: [],
+            ingredients: []
+        };
 
         store.dispatch(resetMenu());
-        store.dispatch(shoppingListDeleted());
-
         db.collection(this.props.login.uid).doc('menu').set({menu});
-        db.collection(this.props.login.uid).doc('shopping-list').set({shoppingList});
         
         this.setState({
             redirect: true
@@ -176,11 +155,11 @@ class Menu extends Component {
                         </div>
                     </div>
                     <MenuBody 
-                        menuRecipes={this.state.selectedCategoryRecipes}
-                        menuCategories={this.state.selectedCategoriesList}
+                        menu={this.props.menu}
+                        categories={this.props.categories.array}
                         menuList={this.state.menuList}
                         uid={this.props.login.uid}
-                        shoppingList={this.props.shoppingList}
+                        //menuIngredients={this.props.menu.ingredients}
                     />
                 </div>
             </div>

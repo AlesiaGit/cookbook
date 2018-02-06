@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 
 class CategoryItemMenu extends Component {
     render() {
+        let id = (!this.props.category) ? '' : this.props.category.id;
         return (
             <div  
                 className="drawer__header-overlay-menu" 
@@ -16,11 +17,11 @@ class CategoryItemMenu extends Component {
                 }}>
                 <div 
                     className="drawer__header-overlay-menu-item" 
-                    onClick={(event) => {console.log(event); this.props.deleteCategory(this.props.category)}}>
+                    onClick={() => this.props.deleteCategory(this.props.category)}>
                     Удалить
                 </div>
                 <Link 
-                    to={"/change-category/" + this.props.category.id}
+                    to={"/change-category/" + id}
                     className="drawer__header-overlay-menu-item">
                     Изменить
                 </Link>

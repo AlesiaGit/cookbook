@@ -10,10 +10,12 @@ import IngredientsList from "./ingredientsList";
 
 //utils
 import { db } from "../../utils/firebase";
+import { recipesToIngredients } from "../../utils/recipesToIngredients";
 
 //store
 import store from "../../store/store";
 import { addRecipe } from "../../ducks/recipes";
+import { updateMenu } from "../../ducks/menu";
 
 const mapStateToProps = state => {
     return {
@@ -52,9 +54,9 @@ class ChangeRecipe extends Component {
             selectedCategory: this.props.categories.array.filter(elem => elem.id === this.state.recipe.category)[0],
             resultImage: this.state.recipe.image,
             recipeId: this.state.recipe.id,
-            recipeName: this.state.recipe.title,
-            recipeCookHours: this.state.recipe.cooktime.hours,
-            recipeCookMinutes: this.state.recipe.cooktime.minutes,
+            recipeName: this.state.recipe.title === "Без названия" ? "" : this.state.recipe.title,
+            recipeCookHours: this.state.recipe.cooktime.hours === "0" ? "" : this.state.recipe.cooktime.hours,
+            recipeCookMinutes: this.state.recipe.cooktime.minutes === "00" ? "" : this.state.recipe.cooktime.minutes,
             recipePortions: this.state.recipe.portions,
             recipeDescription: this.state.recipe.steps,
             recipeIngredients: this.state.recipe.ingredients
@@ -206,12 +208,19 @@ class ChangeRecipe extends Component {
         store.dispatch(addRecipe(recipes));
         db.collection(this.props.login.uid).doc('recipes').set({recipes});
 
-       
-        // if (this.props.menu.array.indexOf(this.state.recipeId) !== -1 && this.state.initialIngredients !== this.state.recipeIngredients) {
-        //     let menu = this.props.menu.array;
-        //     store.dispatch(addToMenu(menu));
-        //     firebaseApp.firestore().collection(this.props.login.uid).doc('menu').set({menu});
-        // }
+        let indices = recipes.map(elem => elem = elem.id);
+        let menuRecipes = recipes.filter(elem => indices.indexOf(elem.id) !== -1);
+        
+        if (menuRecipes.length === this.props.menu.recipes.length) {
+            let menu = {
+                recipes: menuRecipes,
+                ingredients: recipesToIngredients(menuRecipes)
+            }
+
+            db.collection(this.props.login.uid).doc('menu').set({menu});
+            store.dispatch(updateMenu(menuRecipes));
+        }
+
     }
 
     handleCategoryChange = (category) => {
@@ -315,7 +324,7 @@ class ChangeRecipe extends Component {
 
                                         type="number" 
                                         name="recipeCookHours" 
-                                        placeholder="00" 
+                                        placeholder="0" 
                                     /> час</label>
                                     <label><input 
                                         className="change-recipe__cooktime-input" 
@@ -324,7 +333,7 @@ class ChangeRecipe extends Component {
                                         onChange={this.handleInputChange} 
                                         type="number" 
                                         name="recipeCookMinutes" 
-                                        placeholder="30" /> мин</label>
+                                        placeholder="00" /> мин</label>
                                 </div>
                             </div>
                             <div className="change-recipe__portions-wrapper">

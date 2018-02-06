@@ -1,58 +1,63 @@
-// recipes.js
+// menu.js
+import { recipesToIngredients } from "../utils/recipesToIngredients";
 
 // Actions
-export const MENU_ITEM_ADDED = "cookbook/menu/MENU_ITEM_ADDED";
-export const MENU_ITEM_DELETED = "cookbook/menu/MENU_ITEM_DELETED";
+export const MENU_UPDATED = "cookbook/menu/MENU_UPDATED";
+export const INGREDIENTS_UPDATED = "cookbook/menu/INGREDIENTS_UPDATED";
 export const MENU_RESET = "cookbook/menu/MENU_RESET";
 
 
 // Reducer
-//let menuArray = JSON.parse(localStorage.getItem('menu')) || [];
 
 let initialState = {
-    array: []
+    recipes: [],
+    ingredients: [],
 };
 
 export default function menu(state = initialState, action) {
     switch (action.type) {
-        case MENU_ITEM_ADDED:
+        case MENU_UPDATED:
             return {
                 ...state,
-                array: action.data
+                recipes: action.recipes,
+                ingredients: action.ingredients
             };
-        case MENU_ITEM_DELETED:
-        return {
-            ...state,
-            array: action.data
-        };
+        case INGREDIENTS_UPDATED:
+            return {
+                ...state,
+                recipes: action.recipes,
+                ingredients: action.ingredients
+            };
         case MENU_RESET:
-        return {
-            ...state,
-            array: action.data
-        };
+            return {
+                ...state,
+                recipes: [],
+                ingredients: []
+            };
         default:
             return state;
     }
 }
 
 // Action creators
-export function addToMenu(array) {
+export function updateMenu(recipes) {
     return {
-        type: MENU_ITEM_ADDED,
-        data: array
+        type: MENU_UPDATED,
+        recipes: recipes,
+        ingredients: recipesToIngredients(recipes)
     };
 }
 
-export function deleteFromMenu(array) {
+export function updateIngredients(menu) {
     return {
-        type: MENU_ITEM_DELETED,
-        data: array
+        type: INGREDIENTS_UPDATED,
+        recipes: menu.recipes,
+        ingredients: menu.ingredients
     };
 }
 
 export function resetMenu() {
     return {
-        type: MENU_RESET,
-        data: []
+        type: MENU_RESET
     };
 }

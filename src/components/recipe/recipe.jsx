@@ -8,14 +8,14 @@ import HeaderMenu from "./headerMenu";
 
 //utils
 import settings from "../../config";
-//import { asyncLocalStorage } from "../../utils/asyncLocalStorage";
-import firebaseApp from "../../utils/firebase";
-//import 'firebase/firestore';
+import { db } from "../../utils/firebase";
+import { recipesToIngredients } from "../../utils/recipesToIngredients";
+
 
 //store
 import store from "../../store/store";
 import { deleteRecipe } from "../../ducks/recipes";
-import { addToMenu, deleteFromMenu } from "../../ducks/menu";
+import { updateMenu } from "../../ducks/menu";
 
 const mapStateToProps = state => {
     return {
@@ -30,13 +30,15 @@ class Recipe extends Component {
     constructor(props) {
         super(props);
 
+        let id = this.props.location.pathname.split("/recipe/").pop();
+
         this.state = {
         	sideMenu: false,
             startButton: true,
             headerMenu: false,
             redirect: false,
-            recipe: this.props.recipes.array.filter(elem => elem.id === this.props.location.pathname.split("/recipe/").pop())[0],
-            isInMenu: this.props.menu.array.indexOf(this.props.location.pathname.split("/recipe/").pop()) !== -1 ? true : false
+            recipe: this.props.recipes.array.filter(elem => elem.id === id)[0],
+            isInMenu: (this.props.menu.recipes.map(elem => elem = elem.id).indexOf(id) !== -1) ? true : false
         };
     }
 
@@ -81,26 +83,36 @@ class Recipe extends Component {
     		return elem.id !== this.state.recipe.id;
     	});
     	store.dispatch(deleteRecipe(recipes));
-        firebaseApp.firestore().collection(this.props.login.uid).doc('recipes').set({recipes});
+        db.collection(this.props.login.uid).doc('recipes').set({recipes});
 
-    	let remainingRecipesIndices = recipes.map(elem => elem = elem.id);
-        let menu = this.props.menu.array.filter(elem => remainingRecipesIndices.indexOf(elem) !== -1);
-        store.dispatch(deleteFromMenu(menu));
-        firebaseApp.firestore().collection(this.props.login.uid).doc('menu').set({menu});
+    	let indices = recipes.map(elem => elem = elem.id);
+        let menuRecipes = this.props.menu.recipes.filter(elem => indices.indexOf(elem.id) !== -1);
+        
+        if (this.state.isInMenu) {
+            let menu = {
+                recipes: menuRecipes,
+                ingredients: recipesToIngredients(menuRecipes)
+            }
+            store.dispatch(updateMenu(menuRecipes));
+            db.collection(this.props.login.uid).doc('menu').set({menu});
+        }
     }
 
     handleRecipeMenuToggle = () => {
+        let menuRecipes = this.props.menu.recipes;
+        
         if (!this.state.isInMenu) {
-            let menu = this.props.menu.array;
-            menu.push(this.state.recipe.id);
-            store.dispatch(addToMenu(menu));
-            firebaseApp.firestore().collection(this.props.login.uid).doc('menu').set({menu});
-            return;
+            menuRecipes.push(this.state.recipe);
+        } else {
+            menuRecipes.filter(elem => elem.id !== this.state.recipe.id)
         }
 
-        let menu = this.props.menu.array.filter(elem => elem !== this.state.recipe.id);
-        store.dispatch(deleteFromMenu(menu));
-        firebaseApp.firestore().collection(this.props.login.uid).doc('menu').set({menu});
+        let menu = {
+            recipes: menuRecipes,
+            ingredients: recipesToIngredients(menuRecipes)
+        }
+        store.dispatch(updateMenu(menuRecipes));
+        db.collection(this.props.login.uid).doc('menu').set({menu});
     }
    
     render() {

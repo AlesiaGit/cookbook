@@ -2,7 +2,6 @@ import React from "react";
 
 const RecipeItemOverlay = props => {
 	let display = props.alertBoxDisplayArray[props.index] ? 'flex' : 'none';
-    console.log()
     return (
     	<div 
     		className="category__alert-box-wrapper"

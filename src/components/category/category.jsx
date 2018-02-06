@@ -9,13 +9,14 @@ import RecipesList from "./recipesList";
 import HeaderMenu from "./headerMenu";
 
 //utils
-import firebaseApp from "../../utils/firebase";
+import { db } from "../../utils/firebase";
+import { recipesToIngredients } from "../../utils/recipesToIngredients";
 
 //store
 import store from "../../store/store";
 import { deleteCategory } from "../../ducks/categories";
 import { deleteRecipe } from "../../ducks/recipes";
-import { deleteFromMenu } from "../../ducks/menu";
+import { updateMenu } from "../../ducks/menu";
 
 const mapStateToProps = state => {
     return {
@@ -125,18 +126,26 @@ class Category extends Component {
         let categories = this.props.categories.array.filter(elem => elem.id !== category.id);
         let recipes = this.props.recipes.array.filter(elem => elem.category !== category.id);
 
-        let remainingRecipesIndices = recipes.map(elem => elem = elem.id);
-        let menu = this.props.menu.array.filter(elem => remainingRecipesIndices.indexOf(elem) !== -1);
-
         Promise.resolve()
         .then(() => {
-            firebaseApp.firestore().collection(this.props.login.uid).doc('recipes').set({recipes});
-            firebaseApp.firestore().collection(this.props.login.uid).doc('categories').set({categories});
-            firebaseApp.firestore().collection(this.props.login.uid).doc('menu').set({menu});
-
+            db.collection(this.props.login.uid).doc('recipes').set({recipes});
             store.dispatch(deleteRecipe(recipes));
+
+            db.collection(this.props.login.uid).doc('categories').set({categories});
             store.dispatch(deleteCategory(categories));
-            store.dispatch(deleteFromMenu(menu));
+
+            let indices = categories.map(elem => elem = elem.id);
+            let menuRecipes = this.props.menu.recipes.filter(elem => indices.indexOf(elem.category) !== -1);
+
+            if (menuRecipes.length < this.props.menu.recipes.length) {
+                let menu = {
+                    recipes: menuRecipes,
+                    ingredients: recipesToIngredients(menuRecipes)
+                }
+
+                db.collection(this.props.login.uid).doc('menu').set({menu});
+                store.dispatch(updateMenu(recipes));
+            }
         })
         .then(() => {
             if (category.id === this.state.selectedCategory.id) {
@@ -152,7 +161,7 @@ class Category extends Component {
                     selectedCategory: categories.filter(elem => elem.id === this.state.id)[0],
                     selectedCategoryRecipes: recipes.filter(elem => elem.category === this.state.id),
                     redirect: false
-                })
+                }, () => console.log(store.getState()))
             }
         })      
     }

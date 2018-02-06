@@ -12,7 +12,6 @@ import { userLoggedIn, userLoggedOut } from "../ducks/login";
 import { deleteCategory } from "../ducks/categories";
 import { deleteRecipe } from "../ducks/recipes";
 import { resetMenu } from "../ducks/menu";
-import { shoppingListDeleted } from "../ducks/shopping-list";
 
 const mapStateToProps = state => {
     return {
@@ -50,7 +49,6 @@ class Login extends Component {
                     return this.setState({
                         redirect: true,
                         login: false,
-                        //logout: true
                     });
                 });
 	       	} else {
@@ -59,7 +57,6 @@ class Login extends Component {
                     store.dispatch(deleteRecipe(empty));
                     store.dispatch(deleteCategory(empty));
                     store.dispatch(resetMenu());
-                    store.dispatch(shoppingListDeleted());
                     localStorage.setItem('uid', data.uid);
                     
                 }).then(() => {
@@ -178,7 +175,6 @@ class Login extends Component {
     	if (this.state.redirect) return (<Redirect to="/" />);
 
     	let login = this.state.login ? "block" : "none";
-    	//let logout = this.state.logout ? "block" : "none";
         let spinner = this.state.spinner ? "block" : "none";
         let emailError = this.state.emailError ? "visible" : "hidden";
         let passwordError = this.state.passwordError ? "visible" : "hidden";

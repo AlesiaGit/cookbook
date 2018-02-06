@@ -9,9 +9,7 @@ import IconsTable from "./iconsTable";
 
 //utils
 import settings from "../../config";
-//import { asyncLocalStorage } from "../../utils/asyncLocalStorage";
-import firebaseApp from "../../utils/firebase";
-import 'firebase/firestore';
+import { db } from "../../utils/firebase";
 
 //store
 import store from "../../store/store";
@@ -81,11 +79,11 @@ class AddCategory extends Component {
         	color: this.state.categoryColor,
         	icon: this.state.categoryIcon,
             id: this.state.categoryId,
-            name: this.state.categoryName
+            name: this.state.categoryName === '' ? "Без названия" : this.state.categoryName
         };
         categories.push(newCategory);
         store.dispatch(addCategory(categories));
-        firebaseApp.firestore().collection(this.props.login.uid).doc('categories').set({categories});
+        db.collection(this.props.login.uid).doc('categories').set({categories});
 
 
         if (this.state.fromRecipe) {
@@ -94,7 +92,7 @@ class AddCategory extends Component {
             
             let recipes = this.props.recipes.array.map(elem => elem.id === this.state.fromRecipe ? targetRecipe : elem);
             store.dispatch(addRecipe(recipes));
-            firebaseApp.firestore().collection(this.props.login.uid).doc('recipes').set({recipes});
+            db.collection(this.props.login.uid).doc('recipes').set({recipes});
         }
     }
 

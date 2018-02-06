@@ -48,7 +48,6 @@ class CategoriesList extends Component {
     }
 
     toggleItemMenu = (x, y, item) => {
-        console.log(x, y);
         this.setState({
             display: !this.state.display,
             position: {

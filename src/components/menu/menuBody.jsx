@@ -6,18 +6,17 @@ import ShoppingList from "./shoppingList";
 const MenuBody = props => {
 	if (props.menuList) return (
 		<MenuList 
-            menuRecipes={props.menuRecipes}
+            menu={props.menu}
             uid={props.uid}
-            menuCategories={props.menuCategories}
+            categories={props.categories}
 
         />
 	);
 
 	return (
 		<ShoppingList 
-			menuRecipes={props.menuRecipes}
+			menu={props.menu}
 			uid={props.uid}
-			shoppingList={props.shoppingList}
 		/>
 	);
 }

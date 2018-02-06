@@ -8,10 +8,8 @@ import ColorsTable from "./colorsTable";
 import IconsTable from "./iconsTable";
 
 //utils
-//import { asyncLocalStorage } from "../../utils/asyncLocalStorage";
 import settings from "../../config";
-import firebaseApp from "../../utils/firebase";
-//import 'firebase/firestore';
+import { db } from "../../utils/firebase";
 
 //store
 import store from "../../store/store";
@@ -48,7 +46,7 @@ class ChangeCategory extends Component {
 
         this.setState({
             categoryColor: this.state.selectedCategory.color,
-            categoryName: this.state.selectedCategory.name,
+            categoryName: this.state.selectedCategory.name === "Без названия" ? "" : this.state.selectedCategory.name,
             categoryIcon: this.state.selectedCategory.icon,
         })
 
@@ -87,14 +85,13 @@ class ChangeCategory extends Component {
         let changedCategory = {
             id: this.state.categoryId,
             icon: this.state.categoryIcon,
-            name: this.state.categoryName,
+            name: this.state.categoryName === "" ? "Без названия" : this.state.categoryName,
             color: this.state.categoryColor
         };
 
         var categories = this.props.categories.array.map(elem => elem.id === this.state.categoryId ? changedCategory : elem);
         store.dispatch(addCategory(categories));
-        firebaseApp.firestore().collection(this.props.login.uid).doc('categories').set({categories});
-        //asyncLocalStorage.setItem('categories', changedArray);
+        db.collection(this.props.login.uid).doc('categories').set({categories});
     }
     
 
@@ -127,7 +124,8 @@ class ChangeCategory extends Component {
                     type="text" 
                     onChange={this.changeCategoryName}
                     onFocus={this.preventWindowFromResize} 
-                    value={this.state.categoryName} />
+                    value={this.state.categoryName}
+                    placeholder="например, 'Десерты'" />
             </div>
             <div className="change-category__body-section">
                 <div className="change-category__body-section-title">Цвет категории</div>

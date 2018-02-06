@@ -7,17 +7,11 @@ import MenuItems from "./menuItems";
 //utils
 import settings from "../../config";
 import { db } from "../../utils/firebase";
+import { recipesToIngredients } from "../../utils/recipesToIngredients";
 
 //store
 import store from "../../store/store";
-import { deleteFromMenu } from "../../ducks/menu";
-//import { shoppingListCreated } from "../../ducks/shopping-list";
-
-/*const mapStateToProps = state => {
-    return {
-        login: state.login
-    };
-};*/
+import { updateMenu } from "../../ducks/menu";
 
 
 class MenuList extends Component {
@@ -25,11 +19,10 @@ class MenuList extends Component {
 		super(props);
 
 		this.state = {
-	        alertBox: this.props.menuRecipes.map(elem => false),
-            recipes: this.props.menuRecipes,
-            categories: this.props.menuCategories
+	        alertBox: this.props.menu.recipes.map(elem => false),
+            recipes: this.props.menu.recipes,
+            categories: this.props.categories
 	    }
-
 	}
 
     componentWillMount = () => {
@@ -42,11 +35,11 @@ class MenuList extends Component {
 	}
 
     componentWillReceiveProps = (nextProps) => {
-        if (this.state.menuRecipes !== nextProps.menuRecipes) {
+        if (this.state.menu !== nextProps.menu) {
             this.setState({
-                alertBox: nextProps.menuRecipes.map(elem => false),
-                recipes: nextProps.menuRecipes,
-                categories: nextProps.menuCategories
+                alertBox: nextProps.menu.recipes.map(elem => false),
+                recipes:nextProps.menu.recipes,
+                categories: nextProps.categories
             })
         }
     }
@@ -113,9 +106,13 @@ class MenuList extends Component {
 
     deleteRecipeFromMenu = (recipe) => {
         if (recipe) {
-            let indices = this.state.recipes.map(elem => elem = elem.id);
-            let menu = indices.filter(elem => elem !== recipe.id);
-            store.dispatch(deleteFromMenu(menu));
+            let recipes = this.state.recipes.filter(elem => elem.id !== recipe.id);
+            store.dispatch(updateMenu(recipes));
+
+            let menu = {
+                recipes: recipes,
+                ingredients: recipesToIngredients(recipes)
+            }
             db.collection(this.props.uid).doc('menu').set({menu});
         } 
     }
