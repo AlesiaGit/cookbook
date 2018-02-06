@@ -42,7 +42,6 @@ class Home extends Component {
             categories: this.props.categories.array,
             recipes: this.props.recipes.array,
             selectedCategory: settings.defaultCategory,
-            selectedCategoryRecipes: this.props.recipes.array,
             redirect: false,
             spinner: false,
             ratio: window.innerWidth/window.innerHeight,
@@ -75,7 +74,6 @@ class Home extends Component {
                     store.dispatch(addRecipe(recipes));
                     this.setState({
                         recipes: recipes,
-                        selectedCategoryRecipes: recipes,
                         spinner: false
                     })
                 }
@@ -98,6 +96,20 @@ class Home extends Component {
                 }
             });
         });
+    }
+
+    componentWillReceiveProps = (nextProps) => {
+        if (this.state.categories !== nextProps.categories.array) {
+            this.setState({
+                categories: nextProps.categories.array
+            })
+        }
+
+        if (this.state.recipes !== nextProps.recipes.array) {
+            this.setState({
+                recipes: nextProps.recipes.array
+            })
+        }
     }
 
     setStatusBarColor = (color) => {
@@ -197,14 +209,14 @@ class Home extends Component {
         let search = event.target.value;
 
         this.setState({
-            selectedCategoryRecipes: this.state.recipes.filter(elem => elem.title.toLowerCase().indexOf(search.toLowerCase()) >= 0),
+            recipes: this.props.recipes.array.filter(elem => elem.title.toLowerCase().indexOf(search.toLowerCase()) >= 0),
             value: search
         });
     }
 
     resetInput = () => {
         this.setState({
-            selectedCategoryRecipes: this.props.recipes.array,
+            recipes: this.props.recipes.array,
             value: ''
         });
     }
@@ -261,9 +273,9 @@ class Home extends Component {
                         </div>
                     </div>
                     <RecipesList 
-                        recipes={this.state.selectedCategoryRecipes} 
+                        recipes={this.props.recipes.array} 
                         color={categoryColor}
-                        categories={this.state.categories}
+                        categories={this.props.categories.array}
                     />
                     <Link 
                         className="category__add-recipe-btn" 

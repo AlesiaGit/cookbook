@@ -26,7 +26,7 @@ class RecipesList extends Component {
 		super(props);
 
 		this.state = {
-	        alertBox: this.props.recipes.map(elem => false),
+	        alertBox: this.props.recipes.map(elem => false)
 	    }
 	}
 
@@ -38,6 +38,14 @@ class RecipesList extends Component {
         document.removeEventListener('contextmenu', this.handleContextMenu);
         clearTimeout(this.longPressTimer);
 	}
+
+    componentWillReceiveProps = (nextProps) => {
+        if (this.props.recipes !== nextProps.recipes) {
+            this.setState({
+                alertBox: nextProps.recipes.map(elem => false)
+            })
+        }
+    }
 
     handleContextMenu = (event) => {
         event.preventDefault();
