@@ -11,6 +11,7 @@ import ChangeRecipe from "./change-recipe/changeRecipe";
 import Home from "./home/home";
 import Menu from "./menu/menu";
 import Login from "./login";
+import SharedRecipe from "./shared-recipe/sharedRecipe";
 
 class App extends Component {
   	render() {
@@ -26,6 +27,7 @@ class App extends Component {
                     <Route path="/recipe" component={Recipe} />
                     <Route path="/category" component={Category} />
                     <Route path="/menu" component={Menu} />
+                    <Route path="/shared" component={SharedRecipe} />
                 </div>
             </HashRouter>
         );

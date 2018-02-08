@@ -125,7 +125,8 @@ class RecipesList extends Component {
         }
 
         store.dispatch(updateMenu(menuRecipes));
-        db.collection(this.props.login.uid).doc('menu').set({menu});
+        //db.collection(this.props.login.uid).doc('menu').set({menu});
+        db.collection('users/' + this.props.login.uid + '/menu').doc('menu').set({menu});
     }
 
     render() {

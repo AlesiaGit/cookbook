@@ -128,10 +128,15 @@ class Category extends Component {
 
         Promise.resolve()
         .then(() => {
-            db.collection(this.props.login.uid).doc('recipes').set({recipes});
+            //db.collection(this.props.login.uid).doc('recipes').set({recipes});
+            let recipesIndices = this.props.recipes.array.filter(elem => elem.category === category.id).map(elem => elem = elem.id);
+            recipesIndices.forEach(elem => {
+                db.collection('users/' + this.props.login.uid + '/recipes').doc(elem).delete();
+            });
             store.dispatch(deleteRecipe(recipes));
 
-            db.collection(this.props.login.uid).doc('categories').set({categories});
+            //db.collection(this.props.login.uid).doc('categories').set({categories});
+            db.collection('users/' + this.props.login.uid + '/categories').doc('categories').set({categories});
             store.dispatch(deleteCategory(categories));
 
             let indices = categories.map(elem => elem = elem.id);
@@ -143,7 +148,8 @@ class Category extends Component {
                     ingredients: recipesToIngredients(menuRecipes)
                 }
 
-                db.collection(this.props.login.uid).doc('menu').set({menu});
+                //db.collection(this.props.login.uid).doc('menu').set({menu});
+                db.collection('users/' + this.props.login.uid + '/menu').doc('menu').set({menu});
                 store.dispatch(updateMenu(recipes));
             }
         })

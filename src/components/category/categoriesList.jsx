@@ -66,7 +66,8 @@ class CategoriesList extends Component {
             categoriesFromDom: categories 
         });
         store.dispatch(addCategory(categories));
-        db.collection(this.props.login.uid).doc('categories').set({categories});
+        //db.collection(this.props.login.uid).doc('categories').set({categories});
+        db.collection('users/' + this.props.login.uid + '/categories').doc('categories').set({categories});
     }
 
     render() {

@@ -10,6 +10,10 @@ body {
     color: #404040;
 }
 
+ul {
+   padding: 0;
+}
+
 .wrapper {
 	min-height: 100vh;
 	height: 100%;
@@ -244,3 +248,72 @@ body {
     margin: 0;
     word-wrap: break-word;
 }
+
+.recipe__popup-screen-cover {
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+}
+
+.recipe__wrapper-semitransparent-cover {
+    width: 100%;
+    height: 80vh;
+    background-color: rgba(128, 128, 128, 0.3);
+    z-index: 1;
+}
+
+.recipe__popup-wrapper {
+    width: 100%;
+    height: 20vh;
+    display: flex;
+    bottom: 0;
+    justify-content: center;
+    align-items: center;
+    background-color: #ffffff;
+    z-index: 2;
+    padding-bottom: 2vh;
+}
+
+.recipe__popup-row {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+.slide {
+    background-color: #ffffff !important;
+}
+
+.dot {
+    box-shadow: none !important;
+    background-color: #646464 !important;
+}
+
+.carousel {
+    height: 100% !important;
+    display: flex;
+}
+
+.recipe__social-btn {
+    outline: none;
+}
+
+.control-dots {
+    margin: 0 !important;
+}
+
+.shared-recipe__wrapper-semitransparent-cover {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(90, 90, 90, 0.5);
+    z-index: 1;
+}   
+

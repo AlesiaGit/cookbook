@@ -28,7 +28,8 @@ class ShoppingList extends Component {
             ingredients: this.state.ingredients
         }
 
-        db.collection(this.props.uid).doc('menu').set({menu});
+        db.collection('users/' + this.props.login.uid + '/menu').doc('menu').set({menu});
+        //db.collection(this.props.uid).doc('menu').set({menu});
         store.dispatch(updateIngredients(menu));
     }
 

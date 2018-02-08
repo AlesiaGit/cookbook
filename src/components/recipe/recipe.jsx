@@ -5,6 +5,7 @@ import { connect } from "react-redux";
 
 //components
 import HeaderMenu from "./headerMenu";
+import PopUp from "./popUp";
 
 //utils
 import settings from "../../config";
@@ -38,7 +39,10 @@ class Recipe extends Component {
             headerMenu: false,
             redirect: false,
             recipe: this.props.recipes.array.filter(elem => elem.id === id)[0],
-            isInMenu: (this.props.menu.recipes.map(elem => elem = elem.id).indexOf(id) !== -1) ? true : false
+            isInMenu: (this.props.menu.recipes.map(elem => elem = elem.id).indexOf(id) !== -1) ? true : false,
+            sharePopup: false,
+            popUpUrl: "",
+            spinner: false
         };
     }
 
@@ -83,7 +87,8 @@ class Recipe extends Component {
     		return elem.id !== this.state.recipe.id;
     	});
     	store.dispatch(deleteRecipe(recipes));
-        db.collection(this.props.login.uid).doc('recipes').set({recipes});
+        //db.collection(this.props.login.uid).doc('recipes').set({recipes});
+        db.collection('users/' + this.props.login.uid + '/recipes').doc(this.state.recipe.id).delete();
 
     	let indices = recipes.map(elem => elem = elem.id);
         let menuRecipes = this.props.menu.recipes.filter(elem => indices.indexOf(elem.id) !== -1);
@@ -94,7 +99,9 @@ class Recipe extends Component {
                 ingredients: recipesToIngredients(menuRecipes)
             }
             store.dispatch(updateMenu(menuRecipes));
-            db.collection(this.props.login.uid).doc('menu').set({menu});
+
+            db.collection('users/' + this.props.login.uid + '/menu').doc('menu').set({menu});
+            //db.collection(this.props.login.uid).doc('menu').set({menu});
         }
     }
 
@@ -112,7 +119,44 @@ class Recipe extends Component {
             ingredients: recipesToIngredients(menuRecipes)
         }
         store.dispatch(updateMenu(menuRecipes));
-        db.collection(this.props.login.uid).doc('menu').set({menu});
+        //db.collection(this.props.login.uid).doc('menu').set({menu});
+        db.collection('users/' + this.props.login.uid + '/menu').doc('menu').set({menu});
+    }
+
+    shareRecipe = () => {
+    	let random = this.props.login.uid.substr(0, 10);
+    	let doc = random + this.state.recipe.id;
+
+        let recipe = {
+            id: doc,
+            cooktime: {
+                hours: this.state.recipe.cooktime.hours, 
+                minutes: this.state.recipe.cooktime.minutes
+            }, 
+            image: this.state.recipe.image,
+            ingredients: this.state.recipe.ingredients, 
+            portions: this.state.recipe.portions, 
+            steps:this.state.recipe.steps, 
+            title: this.state.recipe.title,
+            category: ''
+        };
+
+        let url = "https://alesiagit.github.io/cookbook/#/shared/" + doc;
+        //let url = "http://localhost:3000/#/shared/" + doc;
+
+  		db.collection('shared').doc(doc).set({recipe: recipe});
+
+    	this.setState({
+    		sharePopup: true,
+    		popUpUrl: url
+    	})
+    }
+
+    toggleSharePopup = () => {
+    	this.setState({
+    		sharePopup: false,
+    		popUpUrl: ''
+    	})
     }
    
     render() {
@@ -129,7 +173,7 @@ class Recipe extends Component {
 		                    <Link className="back-btn" to={"/category/" + this.state.recipe.category} />
 		                </div>
 		                <div className="recipe__header-right-menu">
-		                    <div className="recipe__header-share-btn"></div>
+		                    <div className="recipe__header-share-btn" onClick={this.shareRecipe}></div>
 		                    <div className="recipe__header-menu-btn dots-menu-btn" onClick={this.toggleHeaderMenu}></div>
 		                </div>
 	                </div>
@@ -170,6 +214,11 @@ class Recipe extends Component {
 	            	recipe={this.state.recipe}
 	            	menuStatus={menuStatus}
 	            	handleRecipeMenuToggle={this.handleRecipeMenuToggle}
+	            />
+	            <PopUp 
+	            	url={this.state.popUpUrl} 
+	            	display={this.state.sharePopup} 
+	            	toggleSharePopup={this.toggleSharePopup}
 	            />
 			</div>
         );

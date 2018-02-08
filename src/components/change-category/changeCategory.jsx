@@ -91,7 +91,8 @@ class ChangeCategory extends Component {
 
         var categories = this.props.categories.array.map(elem => elem.id === this.state.categoryId ? changedCategory : elem);
         store.dispatch(addCategory(categories));
-        db.collection(this.props.login.uid).doc('categories').set({categories});
+        db.collection('users/' + this.props.login.uid + '/categories').doc('categories').set({categories});
+        //db.collection(this.props.login.uid).doc('categories').set({categories});
     }
     
 

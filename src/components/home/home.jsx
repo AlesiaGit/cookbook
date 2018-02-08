@@ -57,48 +57,107 @@ class Home extends Component {
 
         this.setStatusBarColor(this.state.selectedCategory.color);
 
-        if (this.props.recipes.array.length > 0) return;
+        if (this.state.categories.length > 0) return;
 
-        this.setState({
-            spinner: true
-        });
+        // this.setState({
+        //     spinner: true
+        // });
 
-        db.collection(this.props.login.uid)
-        .get()
+        let recipesRef = db.collection('users/' + this.props.login.uid + '/recipes');
+        let categoriesRef = db.collection('users/' + this.props.login.uid + '/categories');
+        let menuRef = db.collection('users/' + this.props.login.uid + '/menu');
+
+        recipesRef.get()
         .then((querySnapshot) => {
-            if (querySnapshot.empty) return this.setState({ spinner: false });
+            //if (querySnapshot.empty) return; 
 
+            let recipes = this.state.recipes;
             querySnapshot.forEach((doc) => {
-                if (Object.keys(doc.data())[0] === 'recipes') {
-                    let recipes = Object.values(doc.data())[0];
-                    store.dispatch(addRecipe(recipes));
-                    this.setState({
-                        recipes: recipes,
-                        spinner: false
-                    })
-                }
+                if (recipes.indexOf(doc.data().recipe) === -1) {
+                    recipes.push(doc.data().recipe);
+                }                
+                store.dispatch(addRecipe(recipes));
+                // this.setState({
+                //     recipes: recipes,
+                //     //spinner: false
+                // })
+            })
+        })
 
-                if (Object.keys(doc.data())[0] === 'categories') {
-                    let categories = Object.values(doc.data())[0];
-                    store.dispatch(addCategory(categories));
-                    this.setState({
-                        categories: categories,
-                        spinner: false
-                    })
-                }
+        // categoriesRef.get()
+        // .then((querySnapshot) => {
+        //     if (querySnapshot.empty) return; 
 
-                if (Object.keys(doc.data())[0] === 'menu') {
-                    let menu = Object.values(doc.data())[0];
-                    store.dispatch(updateIngredients(menu));
-                    this.setState({
-                        spinner: false
-                    })
-                }
-            });
-        });
+        //     let categories = this.state.categories;
+        //     querySnapshot.forEach((doc) => {
+        //         categories.push(doc.data().category);
+        //         console.log(categories);
+        //         store.dispatch(addCategory(categories));
+        //         this.setState({
+        //             categories: categories,
+        //             //spinner: false
+        //         })
+        //     })
+        // })
+
+        categoriesRef.doc('categories').get()
+        .then((doc) => {
+            if (doc.exists) {
+                let categories = doc.data().categories;
+                store.dispatch(addCategory(categories));
+                // this.setState({
+                //     categories: categories
+                // })
+            }
+        })
+
+        menuRef.doc('menu').get()
+        .then((doc) => {
+            if (doc.exists) {
+                let menu = doc.data().menu;
+                store.dispatch(updateIngredients(menu));
+                // this.setState({
+                //     menu: menu
+                // })
+            }
+        })
+
+        // db.collection(this.props.login.uid)
+        // .get()
+        // .then((querySnapshot) => {
+        //     if (querySnapshot.empty) return this.setState({ spinner: false });
+        //     querySnapshot.forEach((doc) => {
+        //         if (Object.keys(doc.data())[0] === 'recipes') {
+        //             let recipes = Object.values(doc.data())[0];
+        //             store.dispatch(addRecipe(recipes));
+        //             this.setState({
+        //                 recipes: recipes,
+        //                 spinner: false
+        //             })
+        //         }
+
+        //         if (Object.keys(doc.data())[0] === 'categories') {
+        //             let categories = Object.values(doc.data())[0];
+        //             store.dispatch(addCategory(categories));
+        //             this.setState({
+        //                 categories: categories,
+        //                 spinner: false
+        //             })
+        //         }
+
+        //         if (Object.keys(doc.data())[0] === 'menu') {
+        //             let menu = Object.values(doc.data())[0];
+        //             store.dispatch(updateIngredients(menu));
+        //             this.setState({
+        //                 spinner: false
+        //             })
+        //         }
+        //     });
+        // });
     }
 
     componentWillReceiveProps = (nextProps) => {
+        console.log(nextProps);
         if (this.state.categories !== nextProps.categories.array) {
             this.setState({
                 categories: nextProps.categories.array
@@ -173,16 +232,25 @@ class Home extends Component {
         let categories = this.props.categories.array.filter(elem => elem.id !== category.id);
         let recipes = this.props.recipes.array.filter(elem => elem.category !== category.id);
 
+        
+
+        //console.log(indices.length);
+
         Promise.resolve()
         .then(() => {
-            db.collection(this.props.login.uid).doc('recipes').set({recipes});
+           // db.collection(this.props.login.uid).doc('recipes').set({recipes});
+           let recipesIndices = this.props.recipes.array.filter(elem => elem.category === category.id).map(elem => elem = elem.id);
+            recipesIndices.forEach(elem => {
+                db.collection('users/' + this.props.login.uid + '/recipes').doc(elem).delete();
+            });
             store.dispatch(deleteRecipe(recipes));
 
-            db.collection(this.props.login.uid).doc('categories').set({categories});
+            //db.collection(this.props.login.uid).doc('categories').set({categories});
+            db.collection('users/' + this.props.login.uid + '/categories').doc('categories').set({categories});
             store.dispatch(deleteCategory(categories));
 
-            let indices = categories.map(elem => elem = elem.id);
-            let menuRecipes = this.props.menu.recipes.filter(elem => indices.indexOf(elem.category) !== -1);
+            let menuIndices = categories.map(elem => elem = elem.id);
+            let menuRecipes = this.props.menu.recipes.filter(elem => menuIndices.indexOf(elem.category) !== -1);
 
             if (menuRecipes.length !== this.props.menu.recipes.length) {
                 let menu = {
@@ -190,7 +258,8 @@ class Home extends Component {
                     ingredients: recipesToIngredients(menuRecipes)
                 }
 
-                db.collection(this.props.login.uid).doc('menu').set({menu});
+                //db.collection(this.props.login.uid).doc('menu').set({menu});
+                db.collection('users/' + this.props.login.uid + '/menu').doc('menu').set({menu});
                 store.dispatch(updateMenu(menuRecipes));
             }
         })

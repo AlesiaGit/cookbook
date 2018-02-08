@@ -225,13 +225,17 @@ class AddRecipe extends Component {
         let recipes = this.props.recipes.array.filter(elem => elem.id !== newRecipe.id);
         recipes.push(newRecipe);
         store.dispatch(addRecipe(recipes));
-        db.collection(this.props.login.uid).doc('recipes').set({recipes});
+        //db.collection(this.props.login.uid).doc('recipes').set({recipes});
+
+        db.collection('users/' + this.props.login.uid + '/recipes').doc(newRecipe.id).set({recipe: newRecipe});
     }
 
     deleteRecipe = () => {
         let recipes = this.props.recipes.filter(elem => elem.id !== this.state.recipeId);
         store.dispatch(deleteRecipe(recipes));
-        db.collection(this.props.login.uid).doc('recipes').set({recipes});
+        //db.collection(this.props.login.uid).doc('recipes').set({recipes});
+
+        db.collection('users/' + this.props.login.uid + '/recipes').doc(this.state.recipeId).delete();
     }
 
     handleCategoryChange = (category) => {

@@ -206,7 +206,8 @@ class ChangeRecipe extends Component {
         let recipes = this.props.recipes.array.filter(elem => elem.id !== updatedRecipe.id);
         recipes.push(updatedRecipe);
         store.dispatch(addRecipe(recipes));
-        db.collection(this.props.login.uid).doc('recipes').set({recipes});
+        //db.collection(this.props.login.uid).doc('recipes').set({recipes});
+        db.collection('users/' + this.props.login.uid + '/recipes').doc(updatedRecipe.id).set({recipe: updatedRecipe});
 
         let indices = recipes.map(elem => elem = elem.id);
         let menuRecipes = recipes.filter(elem => indices.indexOf(elem.id) !== -1);
@@ -217,7 +218,8 @@ class ChangeRecipe extends Component {
                 ingredients: recipesToIngredients(menuRecipes)
             }
 
-            db.collection(this.props.login.uid).doc('menu').set({menu});
+            //db.collection(this.props.login.uid).doc('menu').set({menu});
+            db.collection('users/' + this.props.login.uid + '/menu').doc('menu').set({menu});
             store.dispatch(updateMenu(menuRecipes));
         }
 
