@@ -57,11 +57,11 @@ class Home extends Component {
 
         this.setStatusBarColor(this.state.selectedCategory.color);
 
-        if (this.state.categories.length > 0) return;
+        //if (this.state.categories.length > 0) return;
 
-        // this.setState({
-        //     spinner: true
-        // });
+        this.setState({
+            spinner: true
+        });
 
         let recipesRef = db.collection('users/' + this.props.login.uid + '/recipes');
         let categoriesRef = db.collection('users/' + this.props.login.uid + '/categories');
@@ -69,46 +69,45 @@ class Home extends Component {
 
         recipesRef.get()
         .then((querySnapshot) => {
-            //if (querySnapshot.empty) return; 
-
-            let recipes = this.state.recipes;
+            if (querySnapshot.empty) return this.setState({spinner: false}); 
+            let recipes = this.props.recipes.array;
             querySnapshot.forEach((doc) => {
                 if (recipes.indexOf(doc.data().recipe) === -1) {
                     recipes.push(doc.data().recipe);
-                }                
-                store.dispatch(addRecipe(recipes));
-                // this.setState({
-                //     recipes: recipes,
-                //     //spinner: false
-                // })
+                }   
+            })
+
+            if (this.props.location.state && recipes.map(elem => elem = elem.id).indexOf(this.props.location.state.sharedRecipe.id) === -1) {
+                recipes.push(this.props.location.state.sharedRecipe);
+                db.collection('users/' + this.props.login.uid + '/recipes').doc(this.props.location.state.sharedRecipe.id).set({recipe: this.props.location.state.sharedRecipe});
+            }
+
+            store.dispatch(addRecipe(recipes));
+            this.setState({
+                recipes: recipes,
+                spinner: false
             })
         })
-
-        // categoriesRef.get()
-        // .then((querySnapshot) => {
-        //     if (querySnapshot.empty) return; 
-
-        //     let categories = this.state.categories;
-        //     querySnapshot.forEach((doc) => {
-        //         categories.push(doc.data().category);
-        //         console.log(categories);
-        //         store.dispatch(addCategory(categories));
-        //         this.setState({
-        //             categories: categories,
-        //             //spinner: false
-        //         })
-        //     })
-        // })
 
         categoriesRef.doc('categories').get()
         .then((doc) => {
             if (doc.exists) {
                 let categories = doc.data().categories;
+
+                if (this.props.location.state && categories.map(elem => elem = elem.id).indexOf('external') === -1) {
+                    categories.push(this.props.location.state.sharedCategory);
+                    db.collection('users/' + this.props.login.uid + '/categories').doc('categories').set({categories});
+                }
+
                 store.dispatch(addCategory(categories));
-                // this.setState({
-                //     categories: categories
-                // })
-            }
+                this.setState({
+                    categories: categories,
+                })
+            } 
+
+            this.setState({
+                spinner: false
+            })
         })
 
         menuRef.doc('menu').get()
@@ -116,48 +115,20 @@ class Home extends Component {
             if (doc.exists) {
                 let menu = doc.data().menu;
                 store.dispatch(updateIngredients(menu));
-                // this.setState({
-                //     menu: menu
-                // })
+                this.setState({
+                    menu: menu
+                })
             }
+
+            this.setState({
+                spinner: false
+            })
         })
 
-        // db.collection(this.props.login.uid)
-        // .get()
-        // .then((querySnapshot) => {
-        //     if (querySnapshot.empty) return this.setState({ spinner: false });
-        //     querySnapshot.forEach((doc) => {
-        //         if (Object.keys(doc.data())[0] === 'recipes') {
-        //             let recipes = Object.values(doc.data())[0];
-        //             store.dispatch(addRecipe(recipes));
-        //             this.setState({
-        //                 recipes: recipes,
-        //                 spinner: false
-        //             })
-        //         }
-
-        //         if (Object.keys(doc.data())[0] === 'categories') {
-        //             let categories = Object.values(doc.data())[0];
-        //             store.dispatch(addCategory(categories));
-        //             this.setState({
-        //                 categories: categories,
-        //                 spinner: false
-        //             })
-        //         }
-
-        //         if (Object.keys(doc.data())[0] === 'menu') {
-        //             let menu = Object.values(doc.data())[0];
-        //             store.dispatch(updateIngredients(menu));
-        //             this.setState({
-        //                 spinner: false
-        //             })
-        //         }
-        //     });
-        // });
+        
     }
 
     componentWillReceiveProps = (nextProps) => {
-        console.log(nextProps);
         if (this.state.categories !== nextProps.categories.array) {
             this.setState({
                 categories: nextProps.categories.array
@@ -342,9 +313,9 @@ class Home extends Component {
                         </div>
                     </div>
                     <RecipesList 
-                        recipes={this.props.recipes.array} 
+                        recipes={this.state.recipes} 
                         color={categoryColor}
-                        categories={this.props.categories.array}
+                        categories={this.state.categories}
                     />
                     <Link 
                         className="category__add-recipe-btn" 

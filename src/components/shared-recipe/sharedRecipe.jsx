@@ -57,7 +57,8 @@ class SharedRecipe extends Component {
             redirect: false,
             recipe: initialRecipe,
             category: initialCategory,
-            headerMenu: false
+            headerMenu: false,
+            redirectTo: "/"
         };
 
         this.setStatusBarColor();
@@ -128,8 +129,8 @@ class SharedRecipe extends Component {
 
     saveSharedRecipe = () => {
     	
-        Promise.resolve()
-        .then(() => {
+        // Promise.resolve()
+        // .then(() => {
             let recipe = {
                 id: this.state.recipe.id,
                 cooktime: {
@@ -144,32 +145,39 @@ class SharedRecipe extends Component {
                 category: "external"
             };
 
-            db.collection('users/' + this.props.login.uid + '/categories').doc('categories').get()
-            .then((doc) => {
-                if (doc.exists) {
-                    let categories = doc.data().categories;
+        //     db.collection('users/' + this.props.login.uid + '/categories').doc('categories').get()
+        //     .then((doc) => {
+        //         if (doc.exists) {
+        //             let categories = doc.data().categories;
                     
-                    let indices = categories.map(elem => elem = elem.id);
-                    console.log(indices);
-                    if (indices.indexOf('external') > 0) return;
+        //             let indices = categories.map(elem => elem = elem.id);
+        //             console.log(indices);
+        //             if (indices.indexOf('external') > 0) return;
 
-                    categories.push(this.state.category);
-                    console.log(categories);
-                    db.collection('users/' + this.props.login.uid + '/categories').doc('categories').set({categories});
+        //             categories.push(this.state.category);
+        //             console.log(categories);
+        //             db.collection('users/' + this.props.login.uid + '/categories').doc('categories').set({categories});
+        //         }
+        //     })
+
+        //     db.collection('users/' + this.props.login.uid + '/recipes').doc(this.state.recipe.id).set({recipe});
+        
+        // }).then(() => {
+            this.setState({
+                redirect: true,
+                redirectTo: {
+                	pathname: "/", 
+                	state: {
+                		sharedRecipe: recipe,
+                		sharedCategory: this.state.category
+                	}
                 }
             })
-
-            db.collection('users/' + this.props.login.uid + '/recipes').doc(this.state.recipe.id).set({recipe});
-        
-        }).then(() => {
-            this.setState({
-                redirect: true
-            })
-        })
+        // })
     }
        
     render() {
-    	if (this.state.redirect) return (<Redirect to="/" />);
+    	if (this.state.redirect) return (<Redirect to={this.state.redirectTo} />);
         let spinner = this.state.spinner ? "block" : "none";
         let headerMenuVisibility = this.state.headerMenu ? "flex" : "none";
 
