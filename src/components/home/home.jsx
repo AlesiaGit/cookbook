@@ -57,7 +57,7 @@ class Home extends Component {
 
         this.setStatusBarColor(this.state.selectedCategory.color);
 
-        //if (this.state.categories.length > 0) return;
+        if (this.state.categories.length > 0) return;
 
         this.setState({
             spinner: true
@@ -70,9 +70,10 @@ class Home extends Component {
         recipesRef.get()
         .then((querySnapshot) => {
             if (querySnapshot.empty) return this.setState({spinner: false}); 
-            let recipes = this.props.recipes.array;
+            let recipes = this.state.recipes;
+            let indices = this.state.recipes.map(elem => elem = elem.id);
             querySnapshot.forEach((doc) => {
-                if (recipes.indexOf(doc.data().recipe) === -1) {
+                if (indices.indexOf(doc.data().recipe.id) === -1) {
                     recipes.push(doc.data().recipe);
                 }   
             })
