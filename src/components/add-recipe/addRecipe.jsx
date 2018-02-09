@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { Redirect, Link } from "react-router-dom";
 import { connect } from "react-redux";
 //import PropTypes from "prop-types";
-import Croppie from "croppie";
+import { Croppie } from "croppie";
 
 //components
 import CategoriesDropDown from './categoriesDropDown';
@@ -110,7 +110,6 @@ class AddRecipe extends Component {
         }, () => {
 
         this.setState({
-            
             croppie: new Croppie(this.croppie, {
                 viewport: {
                     width: this.resultWrapper.offsetWidth * 0.8,
