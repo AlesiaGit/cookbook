@@ -22,29 +22,21 @@ const mapStateToProps = state => {
 };
 
 class RecipesList extends Component {
-	constructor(props) {
-		super(props);
+    constructor(props) {
+        super(props);
 
-		this.state = {
-	        alertBox: this.props.recipes.map(elem => false)
-	    }
-	}
+        this.state = {
+            alertBox: this.props.recipes.map(elem => false),
+        }
+    }
 
     componentWillMount = () => {
         document.addEventListener('contextmenu', this.handleContextMenu);
     }
 
-	componentWillUnmount = () => {
+    componentWillUnmount = () => {
         document.removeEventListener('contextmenu', this.handleContextMenu);
         clearTimeout(this.longPressTimer);
-	}
-
-    componentWillReceiveProps = (nextProps) => {
-        if (this.props.recipes !== nextProps.recipes) {
-            this.setState({
-                alertBox: nextProps.recipes.map(elem => false)
-            })
-        }
     }
 
     handleContextMenu = (event) => {
@@ -58,7 +50,7 @@ class RecipesList extends Component {
             this.setState({
                 alertBox: this.state.alertBox.map((elem, i) => (i === index) ? true : false)
             })
-    	}, 300);        	
+        }, 300);            
     }
 
     handleRecipeRelease = () => {
@@ -66,11 +58,11 @@ class RecipesList extends Component {
     }
 
     alertBoxDisplay = (index) => {
-    	return this.state.alertBox[index] === true ? "flex" : "none";
+        return this.state.alertBox[index] === true ? "flex" : "none";
     }
 
     resetAlertBoxes = () => {
-    	clearTimeout(this.longPressTimer);
+        clearTimeout(this.longPressTimer);
         this.setState({
             alertBox: this.state.alertBox.map(elem => false)
         });
@@ -88,7 +80,7 @@ class RecipesList extends Component {
     }
 
     addIcon = item => {
-        if (item) {
+        if (item && this.props.categories.length > 0) {
             let category = this.props.categories.filter(elem => elem.id === item.category)[0];
             return ({
                 backgroundColor: category.color,
@@ -110,7 +102,7 @@ class RecipesList extends Component {
     showMenuMessage = recipe => {
         if (recipe) {
             let indices = this.props.menu.recipes.map(elem => elem = elem.id);
-            return indices.indexOf(recipe.id) === -1 ? "Добавить рецепт в меню?" : "Удалить рецепт из меню?";
+            return indices.indexOf(recipe.id) < 0 ? "Добавить рецепт в меню?" : "Удалить рецепт из меню?";
         }
     }
 
@@ -133,8 +125,8 @@ class RecipesList extends Component {
         }
 
         store.dispatch(updateMenu(menuRecipes));
-        db.collection('users/' + this.props.login.uid + '/menu').doc('menu').set({menu});
         //db.collection(this.props.login.uid).doc('menu').set({menu});
+        db.collection('users/' + this.props.login.uid + '/menu').doc('menu').set({menu});
     }
 
     render() {
@@ -154,18 +146,19 @@ class RecipesList extends Component {
                 {table.map((item, index) => (
                    <div key={index}>
                          <RecipeItem
-                         	recipes={this.props.recipes}
-                         	rowIndex={index}
+                            recipes={this.props.recipes}
+                            rowIndex={index}
                             rowData={item}
                             onTouchStart={this.handleRecipeLongPress}
-	            			onTouchEnd={this.handleRecipeRelease}
-	            			alertBoxDisplayArray={this.state.alertBox}
-	                		resetAlertBoxes={this.resetAlertBoxes}
-	                		addTitle={this.addTitle}
-	                		addStyle={this.addStyle}
+                            onTouchEnd={this.handleRecipeRelease}
+                            alertBoxDisplayArray={this.state.alertBox}
+                            resetAlertBoxes={this.resetAlertBoxes}
+                            addTitle={this.addTitle}
+                            addStyle={this.addStyle}
                             addIcon={this.addIcon}
-	                		handleRecipeLongPress={this.handleRecipeLongPress}
-	                		handleRecipeRelease={this.handleRecipeRelease}
+                            getId={this.getId}
+                            handleRecipeLongPress={this.handleRecipeLongPress}
+                            handleRecipeRelease={this.handleRecipeRelease}
                             categories={this.props.categories}
                             handleRecipeMenuToggle={this.handleRecipeMenuToggle}
                             showMenuMessage={this.showMenuMessage}

@@ -13,14 +13,14 @@ import { db } from "../../utils/firebase";
 
 
 //store
-import store from "../../store/store";
-import { addRecipe } from "../../ducks/recipes";
-import { addCategory } from "../../ducks/categories";
+// import store from "../../store/store";
+// import { addRecipe } from "../../ducks/recipes";
+// import { addCategory } from "../../ducks/categories";
 
 const mapStateToProps = state => {
     return {
-        recipes: state.recipes,
-        categories: state.categories,
+        //recipes: state.recipes,
+        //categories: state.categories,
         login: state.login
     };
 };
@@ -86,28 +86,6 @@ class SharedRecipe extends Component {
                 });
             }
         });
-
-        // recipesRef.get()
-        // .then((querySnapshot) => {
-        //     let recipes = this.state.recipes;
-        //     querySnapshot.forEach((doc) => {
-        //         recipes.push(doc.data().recipe);
-        //         this.setState({
-        //             recipes: recipes,
-        //             //spinner: false
-        //         })
-        //     })
-        // })
-
-        // db.collection('users/' + this.props.login.uid + '/categories').doc('categories').get()
-        // .then((doc) => {
-        //     if (doc.exists) {
-        //         let categories = doc.data().categories;
-        //         this.setState({
-        //             categories: categories
-        //         })
-        //     }
-        // })
     }
 
     addStyle = item => {
@@ -128,52 +106,30 @@ class SharedRecipe extends Component {
     }
 
     saveSharedRecipe = () => {
-    	
-        // Promise.resolve()
-        // .then(() => {
-            let recipe = {
-                id: this.state.recipe.id,
-                cooktime: {
-                    hours: this.state.recipe.cooktime.hours, 
-                    minutes: this.state.recipe.cooktime.minutes
-                }, 
-                image: this.state.recipe.image,
-                ingredients: this.state.recipe.ingredients, 
-                portions: this.state.recipe.portions, 
-                steps:this.state.recipe.steps, 
-                title: this.state.recipe.title,
-                category: "external"
-            };
+        let recipe = {
+            id: this.state.recipe.id,
+            cooktime: {
+                hours: this.state.recipe.cooktime.hours, 
+                minutes: this.state.recipe.cooktime.minutes
+            }, 
+            image: this.state.recipe.image,
+            ingredients: this.state.recipe.ingredients, 
+            portions: this.state.recipe.portions, 
+            steps:this.state.recipe.steps, 
+            title: this.state.recipe.title,
+            category: "external"
+        };
 
-        //     db.collection('users/' + this.props.login.uid + '/categories').doc('categories').get()
-        //     .then((doc) => {
-        //         if (doc.exists) {
-        //             let categories = doc.data().categories;
-                    
-        //             let indices = categories.map(elem => elem = elem.id);
-        //             console.log(indices);
-        //             if (indices.indexOf('external') > 0) return;
-
-        //             categories.push(this.state.category);
-        //             console.log(categories);
-        //             db.collection('users/' + this.props.login.uid + '/categories').doc('categories').set({categories});
-        //         }
-        //     })
-
-        //     db.collection('users/' + this.props.login.uid + '/recipes').doc(this.state.recipe.id).set({recipe});
-        
-        // }).then(() => {
-            this.setState({
-                redirect: true,
-                redirectTo: {
-                	pathname: "/", 
-                	state: {
-                		sharedRecipe: recipe,
-                		sharedCategory: this.state.category
-                	}
-                }
-            })
-        // })
+        this.setState({
+            redirect: true,
+            redirectTo: {
+            	pathname: "/", 
+            	state: {
+            		sharedRecipe: recipe,
+            		sharedCategory: this.state.category
+            	}
+            }
+        })
     }
        
     render() {

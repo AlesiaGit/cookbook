@@ -57,7 +57,7 @@ class Home extends Component {
 
         this.setStatusBarColor(this.state.selectedCategory.color);
 
-        if (this.state.categories.length > 0) return;
+        if (this.props.categories.array.length > 0 && !this.props.location.state) return;
 
         this.setState({
             spinner: true
@@ -67,80 +67,87 @@ class Home extends Component {
         let categoriesRef = db.collection('users/' + this.props.login.uid + '/categories');
         let menuRef = db.collection('users/' + this.props.login.uid + '/menu');
 
-        recipesRef.get()
-        .then((querySnapshot) => {
-            if (querySnapshot.empty) return this.setState({spinner: false}); 
-            let recipes = this.state.recipes;
-            let indices = this.state.recipes.map(elem => elem = elem.id);
-            querySnapshot.forEach((doc) => {
-                if (indices.indexOf(doc.data().recipe.id) === -1) {
-                    recipes.push(doc.data().recipe);
-                }   
-            })
+        Promise.resolve()
+        .then(() => {
+            recipesRef.get()
+            .then((querySnapshot) => {
+                if (querySnapshot.empty) return this.setState({spinner: false}); 
 
-            if (this.props.location.state && recipes.map(elem => elem = elem.id).indexOf(this.props.location.state.sharedRecipe.id) === -1) {
-                recipes.push(this.props.location.state.sharedRecipe);
-                db.collection('users/' + this.props.login.uid + '/recipes').doc(this.props.location.state.sharedRecipe.id).set({recipe: this.props.location.state.sharedRecipe});
-            }
+                let recipes = [];
+                //let indices = this.state.recipes.map(elem => elem = elem.id);
+                querySnapshot.forEach((doc) => {
+                    // if (indices.indexOf(doc.data().recipe.id) === -1) {
+                    //     recipes.push(doc.data().recipe);
+                    // }
+                    recipes.push(doc.data().recipe);   
+                })
 
-            store.dispatch(addRecipe(recipes));
-            this.setState({
-                recipes: recipes,
-                spinner: false
-            })
-        })
-
-        categoriesRef.doc('categories').get()
-        .then((doc) => {
-            if (doc.exists) {
-                let categories = doc.data().categories;
-
-                if (this.props.location.state && categories.map(elem => elem = elem.id).indexOf('external') === -1) {
-                    categories.push(this.props.location.state.sharedCategory);
-                    db.collection('users/' + this.props.login.uid + '/categories').doc('categories').set({categories});
+                if (this.props.location.state && recipes.map(elem => elem = elem.id).indexOf(this.props.location.state.sharedRecipe.id) === -1) {
+                    recipes.push(this.props.location.state.sharedRecipe);
+                    db.collection('users/' + this.props.login.uid + '/recipes').doc(this.props.location.state.sharedRecipe.id).set({recipe: this.props.location.state.sharedRecipe});
                 }
+                
+                store.dispatch(addRecipe(recipes));
 
-                store.dispatch(addCategory(categories));
                 this.setState({
-                    categories: categories,
+                    //recipes: recipes,
+                    spinner: false
                 })
-            } 
 
-            this.setState({
-                spinner: false
+                
+            })
+
+            categoriesRef.doc('categories').get()
+            .then((doc) => {
+                if (doc.exists) {
+                    let categories = doc.data().categories;
+
+                    if (this.props.location.state && categories.map(elem => elem = elem.id).indexOf('external') === -1) {
+                        categories.push(this.props.location.state.sharedCategory);
+                        db.collection('users/' + this.props.login.uid + '/categories').doc('categories').set({categories});
+                    }
+
+                    store.dispatch(addCategory(categories));
+
+                    this.setState({
+                        //categories: categories,
+                        spinner: false
+                    })
+
+                    
+                } 
+            })
+
+            menuRef.doc('menu').get()
+            .then((doc) => {
+                if (doc.exists) {
+                    let menu = doc.data().menu;
+                    
+                    store.dispatch(updateIngredients(menu));
+                    
+                    this.setState({
+                        menu: menu,
+                        spinner: false
+                    })
+
+                    
+                }
             })
         })
-
-        menuRef.doc('menu').get()
-        .then((doc) => {
-            if (doc.exists) {
-                let menu = doc.data().menu;
-                store.dispatch(updateIngredients(menu));
-                this.setState({
-                    menu: menu
-                })
-            }
-
-            this.setState({
-                spinner: false
-            })
-        })
-
-        
     }
 
     componentWillReceiveProps = (nextProps) => {
-        if (this.state.categories !== nextProps.categories.array) {
-            this.setState({
-                categories: nextProps.categories.array
-            })
-        }
+        // if (this.state.categories !== nextProps.categories.array) {
+        //     this.setState({
+        //         categories: nextProps.categories.array
+        //     })
+        // }
 
-        if (this.state.recipes !== nextProps.recipes.array) {
-            this.setState({
-                recipes: nextProps.recipes.array
-            })
-        }
+        // if (this.state.recipes !== nextProps.recipes.array) {
+        //     this.setState({
+        //         recipes: nextProps.recipes.array
+        //     })
+        // }
     }
 
     setStatusBarColor = (color) => {
@@ -184,9 +191,9 @@ class Home extends Component {
 
     writeRecipesCount = (id) => {
         let count = 0;
-        if (id === 'default') return this.correctlyWrite(this.state.recipes.length);
+        if (id === 'default') return this.correctlyWrite(this.props.recipes.array.length);
             
-        this.state.recipes.forEach(item => {
+        this.props.recipes.array.forEach(item => {
             if (item.category === id) return count++;
         });
 
@@ -314,9 +321,9 @@ class Home extends Component {
                         </div>
                     </div>
                     <RecipesList 
-                        recipes={this.state.recipes} 
+                        recipes={this.props.recipes.array} 
                         color={categoryColor}
-                        categories={this.state.categories}
+                        categories={this.props.categories.array}
                     />
                     <Link 
                         className="category__add-recipe-btn" 
