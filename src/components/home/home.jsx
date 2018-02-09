@@ -90,7 +90,7 @@ class Home extends Component {
                 store.dispatch(addRecipe(recipes));
 
                 this.setState({
-                    //recipes: recipes,
+                    recipes: recipes,
                     spinner: false
                 })
 
@@ -110,7 +110,7 @@ class Home extends Component {
                     store.dispatch(addCategory(categories));
 
                     this.setState({
-                        //categories: categories,
+                        categories: categories,
                         spinner: false
                     })
 
@@ -137,17 +137,17 @@ class Home extends Component {
     }
 
     componentWillReceiveProps = (nextProps) => {
-        // if (this.state.categories !== nextProps.categories.array) {
-        //     this.setState({
-        //         categories: nextProps.categories.array
-        //     })
-        // }
+        if (this.state.categories !== nextProps.categories.array) {
+            this.setState({
+                categories: nextProps.categories.array
+            })
+        }
 
-        // if (this.state.recipes !== nextProps.recipes.array) {
-        //     this.setState({
-        //         recipes: nextProps.recipes.array
-        //     })
-        // }
+        if (this.state.recipes !== nextProps.recipes.array) {
+            this.setState({
+                recipes: nextProps.recipes.array
+            })
+        }
     }
 
     setStatusBarColor = (color) => {
@@ -321,9 +321,9 @@ class Home extends Component {
                         </div>
                     </div>
                     <RecipesList 
-                        recipes={this.props.recipes.array} 
+                        recipes={this.state.recipes} 
                         color={categoryColor}
-                        categories={this.props.categories.array}
+                        categories={this.state.categories}
                     />
                     <Link 
                         className="category__add-recipe-btn" 

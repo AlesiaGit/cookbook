@@ -113,7 +113,7 @@ class MenuList extends Component {
                 recipes: recipes,
                 ingredients: recipesToIngredients(recipes)
             }
-            db.collection('users/' + this.props.login.uid + '/menu').doc('menu').set({menu});
+            db.collection('users/' + this.props.uid + '/menu').doc('menu').set({menu});
             //db.collection(this.props.uid).doc('menu').set({menu});
         } 
     }

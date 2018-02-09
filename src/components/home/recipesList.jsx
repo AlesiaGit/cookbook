@@ -80,13 +80,14 @@ class RecipesList extends Component {
     }
 
     addIcon = item => {
-        if (item && this.props.categories.length > 0) {
-            let category = this.props.categories.filter(elem => elem.id === item.category)[0];
-            return ({
-                backgroundColor: category.color,
-                WebkitMaskImage: "url(" + category.icon + ")", 
-            });
-        }
+        if (!item || this.props.categories.length === 0) return;
+        
+        let category = this.props.categories.filter(elem => elem.id === item.category)[0];
+        
+        return ({
+            backgroundColor: category.color,
+            WebkitMaskImage: "url(" + category.icon + ")", 
+        });
     }
 
     getId = item => {
