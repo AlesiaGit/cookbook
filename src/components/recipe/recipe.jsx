@@ -38,6 +38,7 @@ class Recipe extends Component {
             startButton: true,
             headerMenu: false,
             redirect: false,
+            redirectTo: "/",
             recipe: this.props.recipes.array.filter(elem => elem.id === id)[0],
             isInMenu: (this.props.menu.recipes.map(elem => elem = elem.id).indexOf(id) !== -1) ? true : false,
             sharePopup: false,
@@ -49,7 +50,8 @@ class Recipe extends Component {
     componentWillMount = () => {
         if (this.state.recipe === undefined) {
             this.setState({
-                redirect: true
+                redirect: true,
+                redirectTo: "/",
             });
         } else {
     		this.setState({
@@ -87,7 +89,6 @@ class Recipe extends Component {
     		return elem.id !== this.state.recipe.id;
     	});
     	store.dispatch(deleteRecipe(recipes));
-        //db.collection(this.props.login.uid).doc('recipes').set({recipes});
         db.collection('users/' + this.props.login.uid + '/recipes').doc(this.state.recipe.id).delete();
 
     	let indices = recipes.map(elem => elem = elem.id);
@@ -101,26 +102,34 @@ class Recipe extends Component {
             store.dispatch(updateMenu(menuRecipes));
 
             db.collection('users/' + this.props.login.uid + '/menu').doc('menu').set({menu});
-            //db.collection(this.props.login.uid).doc('menu').set({menu});
         }
     }
 
     handleRecipeMenuToggle = () => {
-        let menuRecipes = this.props.menu.recipes;
+        Promise.resolve()
+        .then(() => {
+            let menuRecipes = this.props.menu.recipes;
         
-        if (!this.state.isInMenu) {
-            menuRecipes.push(this.state.recipe);
-        } else {
-            menuRecipes.filter(elem => elem.id !== this.state.recipe.id)
-        }
+            if (!this.state.isInMenu) {
+                menuRecipes.push(this.state.recipe);
+            } else {
+                menuRecipes = this.props.menu.recipes.filter(elem => elem.id !== this.state.recipe.id)
+            }
 
-        let menu = {
-            recipes: menuRecipes,
-            ingredients: recipesToIngredients(menuRecipes)
-        }
-        store.dispatch(updateMenu(menuRecipes));
-        //db.collection(this.props.login.uid).doc('menu').set({menu});
-        db.collection('users/' + this.props.login.uid + '/menu').doc('menu').set({menu});
+            let menu = {
+                recipes: menuRecipes,
+                ingredients: recipesToIngredients(menuRecipes)
+            }
+
+            store.dispatch(updateMenu(menuRecipes));
+            db.collection('users/' + this.props.login.uid + '/menu').doc('menu').set({menu});
+        })
+        .then(() => {
+            this.setState({
+                redirect: true,
+                redirectTo: "/menu"
+            })
+        })
     }
 
     shareRecipe = () => {
@@ -142,7 +151,6 @@ class Recipe extends Component {
         };
 
         let url = "https://alesiagit.github.io/cookbook/#/shared/" + doc;
-        //let url = "http://localhost:3000/#/shared/" + doc;
 
   		db.collection('shared').doc(doc).set({recipe: recipe});
 
@@ -160,7 +168,7 @@ class Recipe extends Component {
     }
    
     render() {
-    	if (this.state.redirect) return (<Redirect to="/" />);
+    	if (this.state.redirect) return (<Redirect to={this.state.redirectTo} />);
 
     	let headerMenuVisibility = this.state.headerMenu ? "flex" : "none";
     	let menuStatus = this.state.isInMenu ? "Удалить из меню" : "Добавить в меню";

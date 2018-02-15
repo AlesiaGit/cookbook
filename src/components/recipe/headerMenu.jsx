@@ -21,13 +21,12 @@ const HeaderMenu = props => {
 	            	>
 	            	Изменить
 	            </Link>
-	            <Link 
-	            	to="/menu"
+	            <div 
 	            	className="recipe__header-overlay-menu-item"
 	            	onClick={() => props.handleRecipeMenuToggle()}
 	            	>
 	            	{props.menuStatus}
-	            </Link>
+	            </div>
 	        </div>
         </div>
     )

@@ -26,12 +26,20 @@ class RecipesList extends Component {
         super(props);
 
         this.state = {
-            alertBox: this.props.recipes.map(elem => false),
+            alertBox: this.props.recipes.map(elem => false)
         }
     }
 
     componentWillMount = () => {
         document.addEventListener('contextmenu', this.handleContextMenu);
+    }
+
+    componentWillReceiveProps = (nextProps) => {
+        if (this.props.recipes !== nextProps.recipes) {
+            this.setState({
+                alertBox: nextProps.recipes.map(elem => false)
+            })
+        }
     }
 
     componentWillUnmount = () => {
@@ -126,7 +134,6 @@ class RecipesList extends Component {
         }
 
         store.dispatch(updateMenu(menuRecipes));
-        //db.collection(this.props.login.uid).doc('menu').set({menu});
         db.collection('users/' + this.props.login.uid + '/menu').doc('menu').set({menu});
     }
 
