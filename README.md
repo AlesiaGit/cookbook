@@ -1,6 +1,6 @@
 # CookBook
-![https://alesiagit.github.io/cookbook/](https://rawgit.com/AlesiaGit/cookbook/master/public/chrome/chrome-extensionmanagementpage-48-48.png) 
-Cookbook is a PWA application for recipes storing and sharing.
+![](https://rawgit.com/AlesiaGit/cookbook/master/public/chrome/chrome-extensionmanagementpage-48-48.png) 
+[Cookbook](https://alesiagit.github.io/cookbook/) is a PWA application for recipes storing and sharing.
 
 # Features 
  - Offline and online mode capabilities;
@@ -18,5 +18,5 @@ Cookbook is a PWA application for recipes storing and sharing.
  - [React Share](https://www.npmjs.com/package/react-share) - sharing capabilities,
  - [Sortable](https://www.npmjs.com/package/sortablejs) - sorting animation tool,
  - [Spinner](https://www.npmjs.com/package/react16-spinjs) - spinner
- -
+ 
 ![](https://rawgit.com/AlesiaGit/cookbook/master/src/img/screens/preview.png)
