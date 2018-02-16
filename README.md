@@ -19,4 +19,4 @@
  - [Sortable](https://www.npmjs.com/package/sortablejs) - sorting animation tool,
  - [Spinner](https://www.npmjs.com/package/react16-spinjs) - spinner
  
-![](https://rawgit.com/AlesiaGit/cookbook/master/src/img/screens/preview.png)
+![](https://rawgit.com/AlesiaGit/cookbook/master/src/img/screens/preview-github.png)
