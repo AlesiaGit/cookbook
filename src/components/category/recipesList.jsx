@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-//import PropTypes from "prop-types";
 
 //components
 import RecipeItem from "./recipeItem";
@@ -22,105 +21,116 @@ const mapStateToProps = state => {
 };
 
 class RecipesList extends Component {
-	constructor(props) {
-		super(props);
+    constructor(props) {
+        super(props);
 
-		this.state = {
-	        alertBox: this.props.recipes.map(elem => false)
-	    }
-   	}
-
-    componentWillMount = () => {
-        document.addEventListener('contextmenu', this.handleContextMenu);
+        this.state = {
+            alertBox: this.props.recipes.map(elem => false)
+        };
     }
 
-    componentWillReceiveProps = (nextProps) => {
+    componentWillMount = () => {
+        document.addEventListener("contextmenu", this.handleContextMenu);
+    };
+
+    componentWillReceiveProps = nextProps => {
         if (this.props.recipes !== nextProps.recipes) {
             this.setState({
                 alertBox: nextProps.recipes.map(elem => false)
-            })
+            });
         }
-    }
+    };
 
-	componentWillUnmount = () => {
-        document.removeEventListener('contextmenu', this.handleContextMenu);
+    componentWillUnmount = () => {
+        document.removeEventListener("contextmenu", this.handleContextMenu);
         clearTimeout(this.longPressTimer);
-	}
+    };
 
-    handleContextMenu = (event) => {
+    handleContextMenu = event => {
         event.preventDefault();
         event.stopPropagation();
         return false;
-    }
+    };
 
-    handleRecipeLongPress = (index) => {
+    handleRecipeLongPress = index => {
         this.longPressTimer = setTimeout(() => {
             this.setState({
-                alertBox: this.state.alertBox.map((elem, i) => (i === index) ? true : false)
-            })
-    	}, 300);        	
-    }
+                alertBox: this.state.alertBox.map(
+                    (elem, i) => (i === index ? true : false)
+                )
+            });
+        }, 300);
+    };
 
     handleRecipeRelease = () => {
         clearTimeout(this.longPressTimer);
-    }
+    };
 
-    alertBoxDisplay = (index) => {
-    	return this.state.alertBox[index] === true ? "flex" : "none";
-    }
+    alertBoxDisplay = index => {
+        return this.state.alertBox[index] === true ? "flex" : "none";
+    };
 
     resetAlertBoxes = () => {
-    	clearTimeout(this.longPressTimer);
+        clearTimeout(this.longPressTimer);
         this.setState({
             alertBox: this.state.alertBox.map(elem => false)
         });
-    }
+    };
 
     addStyle = item => {
-        if (item) return ({
-            backgroundImage: (item.image === '') ? 'url(' + settings.defaultCategory.image + ')' : item.image,
-            backgroundColor: this.props.color
-        })
-    }
+        if (item)
+            return {
+                backgroundImage:
+                    item.image === ""
+                        ? "url(" + settings.defaultCategory.image + ")"
+                        : item.image,
+                backgroundColor: this.props.color
+            };
+    };
 
     addTitle = item => {
         if (item) return item.title;
-    }
+    };
 
     addIcon = item => {
         if (item) {
-            let category = this.props.categories.filter(elem => elem.id === item.category)[0];
-            return ({
+            let category = this.props.categories.filter(
+                elem => elem.id === item.category
+            )[0];
+            return {
                 backgroundColor: category.color,
-                WebkitMaskImage: "url(" + category.icon + ")", 
-            });
+                WebkitMaskImage: "url(" + category.icon + ")"
+            };
         }
-    }
+    };
 
     getId = item => {
         if (item) return item.id;
-    }
+    };
 
     hideEmpty = item => {
-        if (!item) return ({
-            visibility: 'hidden'
-        })
-    }
+        if (!item)
+            return {
+                visibility: "hidden"
+            };
+    };
 
     showMenuMessage = recipe => {
         if (recipe) {
-            let indices = this.props.menu.recipes.map(elem => elem = elem.id);
-            return indices.indexOf(recipe.id) < 0 ? "Добавить рецепт в меню?" : "Удалить рецепт из меню?";
+            let indices = this.props.menu.recipes.map(elem => (elem = elem.id));
+            return indices.indexOf(recipe.id) < 0
+                ? "Добавить рецепт в меню?"
+                : "Удалить рецепт из меню?";
         }
-    }
+    };
 
     handleRecipeMenuToggle = recipe => {
         let menuRecipes = this.props.menu.recipes;
-        let indices = this.props.menu.recipes.map(elem => elem = elem.id);
+        let indices = this.props.menu.recipes.map(elem => (elem = elem.id));
 
         if (!recipe) return;
-        
-        if (indices.indexOf(recipe.id) === -1)  {
+
+        if (indices.indexOf(recipe.id) === -1) {
             menuRecipes.push(recipe);
         } else {
             let index = menuRecipes.indexOf(recipe);
@@ -130,17 +140,24 @@ class RecipesList extends Component {
         let menu = {
             recipes: menuRecipes,
             ingredients: recipesToIngredients(menuRecipes)
-        }
+        };
 
         store.dispatch(updateMenu(menuRecipes));
-        db.collection('users/' + this.props.login.uid + '/menu').doc('menu').set({menu});
-    }
+        db
+            .collection("users/" + this.props.login.uid + "/menu")
+            .doc("menu")
+            .set({ menu });
+    };
 
     render() {
         let table = [];
         let itemsPerRow = 2;
 
-        for (let i = 0; i < Math.round(this.props.recipes.length / itemsPerRow); i++) {
+        for (
+            let i = 0;
+            i < Math.round(this.props.recipes.length / itemsPerRow);
+            i++
+        ) {
             let row = [];
             for (let j = 0; j < itemsPerRow; j++) {
                 row.push(this.props.recipes[i * itemsPerRow + j]);
@@ -149,37 +166,32 @@ class RecipesList extends Component {
         }
 
         return (
-             <div className="category__list">
+            <div className="category__list">
                 {table.map((item, index) => (
-                   <div key={index}>
-                         <RecipeItem
-                         	recipes={this.props.recipes}
-                         	rowIndex={index}
+                    <div key={index}>
+                        <RecipeItem
+                            recipes={this.props.recipes}
+                            rowIndex={index}
                             rowData={item}
                             onTouchStart={this.handleRecipeLongPress}
-	            			onTouchEnd={this.handleRecipeRelease}
-	            			alertBoxDisplayArray={this.state.alertBox}
-	                		resetAlertBoxes={this.resetAlertBoxes}
-	                		addTitle={this.addTitle}
-	                		addStyle={this.addStyle}
+                            onTouchEnd={this.handleRecipeRelease}
+                            alertBoxDisplayArray={this.state.alertBox}
+                            resetAlertBoxes={this.resetAlertBoxes}
+                            addTitle={this.addTitle}
+                            addStyle={this.addStyle}
                             addIcon={this.addIcon}
                             getId={this.getId}
-	                		handleRecipeLongPress={this.handleRecipeLongPress}
-	                		handleRecipeRelease={this.handleRecipeRelease}
+                            handleRecipeLongPress={this.handleRecipeLongPress}
+                            handleRecipeRelease={this.handleRecipeRelease}
                             categories={this.props.categories}
                             handleRecipeMenuToggle={this.handleRecipeMenuToggle}
                             showMenuMessage={this.showMenuMessage}
-                            /> 
+                        />
                     </div>
-                 ))}
+                ))}
             </div>
-            
         );
     }
 }
-
-/*Game.propTypes = {
-    location: PropTypes.string
-};*/
 
 export default connect(mapStateToProps)(RecipesList);
